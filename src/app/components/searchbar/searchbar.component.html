@@ -1,6 +1,22 @@
-<div class="ui form">
-  <div class="ui action input">
-    <input type="text" placeholder="search 500,000+ games.." />
-    <button class="ui button">Search</button>
-  </div>
+<div class="ui container">
+  <form class="ui form" #searchForm (ngSubmit)="onSubmit(searchForm)">
+    <div class="ui stackable grid">
+      <h4
+        class="column"
+        style="width: 50px; margin-bottom: 0; align-self: center"
+      >
+        <a routerLink="/" style="color: #fff">Home</a>
+      </h4>
+      <div class="column" style="width: 80%">
+        <div class="ui right action mini input" style="width: 90%">
+          <input
+            type="text"
+            placeholder="Search 500, 000+ games"
+            style="color: #000 !important"
+          />
+          <button class="ui primary button">Search</button>
+        </div>
+      </div>
+    </div>
+  </form>
 </div>
