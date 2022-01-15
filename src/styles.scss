@@ -2,15 +2,25 @@
 * {
   margin: 0;
   padding: 0;
-  color: #fff !important;
+  color: #fff;
 }
 body {
   font-family: Arial, Helvetica, sans-serif;
   /* padding-top: 50px; */
   height: 100%;
-  background: #123;
+  background: #116466;
 }
 
 .container {
   padding: 50px 0;
+}
+
+.ui.primary.button {
+  background: #d1e8e2;
+  color: #116466;
+}
+
+.ui.primary.button:hover {
+  background: #a1c7bd;
+  color: #116466;
 }
