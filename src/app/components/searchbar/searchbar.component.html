@@ -1,4 +1,4 @@
-<div class="ui container">
+<div class="ui basic segment">
   <form class="ui form" #searchForm (ngSubmit)="onSubmit(searchForm)">
     <div class="ui stackable grid">
       <h4
@@ -7,7 +7,7 @@
       >
         <a routerLink="/" style="color: #fff">Home</a>
       </h4>
-      <div class="column" style="width: 80%">
+      <div class="column" style="width: calc(100% - 50px)">
         <div class="ui right action mini input" style="width: 90%">
           <input
             type="text"

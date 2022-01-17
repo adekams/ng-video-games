@@ -1,15 +1,18 @@
 .ui.card {
   background: #000;
+  .content * {
+    color: #ffcb9a !important;
+  }
 }
 
 i.icon {
   color: #fff;
 }
 
-.ui.card .content * {
-  color: #ffcb9a !important;
-}
-
 .primary-color:hover {
   color: #d9b08c !important;
+}
+
+::ng-deep .selection * {
+  color: #000 !important;
 }
