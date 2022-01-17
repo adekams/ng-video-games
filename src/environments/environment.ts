@@ -3,7 +3,9 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  API_URL: 'https://rawg-video-games-database.p.rapidapi.com',
+  API_KEY: '0473fa5b6afe4637a1f6936b3035c014',
 };
 
 /*

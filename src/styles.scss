@@ -13,14 +13,20 @@ body {
 
 .container {
   padding: 50px 0;
+  margin: 0;
 }
 
 .ui.primary.button {
   background: #d1e8e2;
   color: #116466;
+
+  &:hover {
+    background: #a1c7bd;
+    color: #116466;
+  }
 }
 
-.ui.primary.button:hover {
-  background: #a1c7bd;
-  color: #116466;
+.ui.basic.segment {
+  padding: 30px 0;
+  background: transparent;
 }
