@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { HttpService } from '../../services/http.service';
 
 @Component({
   selector: 'app-home',
@@ -18,8 +20,13 @@ export class HomeComponent implements OnInit {
     'Metacritic',
   ];
   namedOptions = this.options.map((name) => ({ name }));
-
-  constructor() {}
+  games: any;
+  noImg: string =
+    'https://res.cloudinary.com/adenike/image/upload/v1642002314/no-image_iah8ux.png';
+  constructor(
+    private http: HttpService,
+    private activatedRoute: ActivatedRoute
+  ) {}
 
   ngOnInit(): void {
     this.options = this.namedOptions;
