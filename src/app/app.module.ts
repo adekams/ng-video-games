@@ -8,6 +8,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { SearchbarComponent } from './components/searchbar/searchbar.component';
 import { HomeComponent } from './components/home/home.component';
+import { HttpService } from './services/http.service';
 
 @NgModule({
   declarations: [AppComponent, SearchbarComponent, HomeComponent],
@@ -18,7 +19,7 @@ import { HomeComponent } from './components/home/home.component';
     HttpClientModule,
     FormsModule,
   ],
-  providers: [],
+  providers: [HttpService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
