@@ -1,0 +1,99 @@
+<!-- <form class="ui form" style="background: green"> -->
+<div class="ui basic segment">
+  <sui-select
+    class="selection"
+    [(ngModel)]="selectedOption"
+    [options]="options"
+    labelField="name"
+    [isSearchable]="false"
+    [isDisabled]="false"
+    #select
+  >
+    <sui-select-option
+      *ngFor="let option of select.filteredOptions"
+      [value]="option"
+    >
+    </sui-select-option>
+  </sui-select>
+</div>
+<!-- </form> -->
+<div class="ui basic segment">
+  <div class="ui four doubling cards">
+    <div class="ui card">
+      <a class="image" href="#">
+        <img
+          src="https://res.cloudinary.com/adenike/image/upload/v1642002314/no-image_iah8ux.png"
+        />
+      </a>
+      <div class="content">
+        <a class="primary-color header" href="#">Call of Duty</a>
+        <div class="meta platforms" style="margin-top: 8px">
+          <a><i class="microsoft icon"></i></a>
+          <a><i class="xbox icon"></i></a>
+          <a><i class="nintendo switch icon"></i></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="ui card">
+      <a class="image" href="#">
+        <img
+          src="https://res.cloudinary.com/adenike/image/upload/v1642002314/no-image_iah8ux.png"
+        />
+      </a>
+      <div class="content">
+        <a class="primary-color header" href="#">Call of Duty</a>
+        <div class="meta platforms" style="margin-top: 8px">
+          <a><i class="microsoft icon"></i></a>
+          <a><i class="xbox icon"></i></a>
+          <a><i class="nintendo switch icon"></i></a>
+        </div>
+      </div>
+    </div>
+    <div class="ui card">
+      <a class="image" href="#">
+        <img
+          src="https://res.cloudinary.com/adenike/image/upload/v1642002314/no-image_iah8ux.png"
+        />
+      </a>
+      <div class="content">
+        <a class="primary-color header" href="#">Call of Duty</a>
+        <div class="meta platforms" style="margin-top: 8px">
+          <a><i class="microsoft icon"></i></a>
+          <a><i class="xbox icon"></i></a>
+          <a><i class="nintendo switch icon"></i></a>
+        </div>
+      </div>
+    </div>
+    <div class="ui card">
+      <a class="image" href="#">
+        <img
+          src="https://res.cloudinary.com/adenike/image/upload/v1642002314/no-image_iah8ux.png"
+        />
+      </a>
+      <div class="content">
+        <a class="primary-color header" href="#">Call of Duty</a>
+        <div class="meta platforms" style="margin-top: 8px">
+          <a><i class="microsoft icon"></i></a>
+          <a><i class="xbox icon"></i></a>
+          <a><i class="nintendo switch icon"></i></a>
+        </div>
+      </div>
+    </div>
+    <div class="ui card">
+      <a class="image" href="#">
+        <img
+          src="https://res.cloudinary.com/adenike/image/upload/v1642002314/no-image_iah8ux.png"
+        />
+      </a>
+      <div class="content">
+        <a class="primary-color header" href="#">Call of Duty</a>
+        <div class="meta platforms" style="margin-top: 8px">
+          <a><i class="microsoft icon"></i></a>
+          <a><i class="xbox icon"></i></a>
+          <a><i class="nintendo switch icon"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
