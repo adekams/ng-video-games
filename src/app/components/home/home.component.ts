@@ -21,7 +21,8 @@ export class HomeComponent implements OnInit {
     'Metacritic',
   ];
   namedOptions = this.options.map((name) => ({ name }));
-  games: any;
+  games: Array<Game> = [];
+  sort: string;
   noImg: string =
     'https://res.cloudinary.com/adenike/image/upload/v1642002314/no-image_iah8ux.png';
   constructor(

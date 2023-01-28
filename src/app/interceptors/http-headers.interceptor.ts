@@ -16,12 +16,14 @@ export class HttpHeadersInterceptor implements HttpInterceptor {
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
     request = request.clone({
+      // https://rapidapi.com/accujazz/api/rawg-video-games-database/details
       setHeaders: {
-        'x-rapidapi-key': '6571d2e71fmsh1e2389390483fc5p1c7fc1jsn6eddb42c93ac',
+        'x-rapidapi-key': '42d813360dmsh8137b4197221fb2p19ed88jsn9b39155216ce',
         'x-rapidapi-host': 'rawg-video-games-database.p.rapidapi.com',
       },
+      // rawg.io
       setParams: {
-        key: '0473fa5b6afe4637a1f6936b3035c014',
+        key: '613215ec3d364759ada7617f5c86edf0',
       },
     });
     return next.handle(request);
