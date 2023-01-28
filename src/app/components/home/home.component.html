@@ -2,8 +2,9 @@
 <div class="ui basic segment">
   <sui-select
     class="selection"
-    [(ngModel)]="selectedOption"
-    [options]="options"
+    [(ngModel)]="sortBy"
+    (selectedOptionChange)="searchGames(sortBy.value)"
+    [options]="sortOptions"
     labelField="name"
     [isSearchable]="false"
     [isDisabled]="false"
@@ -17,23 +18,35 @@
   </sui-select>
 </div>
 <!-- </form> -->
-<div class="ui basic segment">
+<div class="ui basic segment" [ngClass]="{ loading: pending }">
   <div class="ui four doubling cards">
-    <div class="ui card">
-      <a class="image" href="#">
-        <img
-          src="https://res.cloudinary.com/adenike/image/upload/v1642002314/no-image_iah8ux.png"
-        />
-      </a>
-      <div class="content">
-        <a class="primary-color header" href="#">Call of Duty</a>
-        <div class="meta platforms" style="margin-top: 8px">
-          <a><i class="microsoft icon"></i></a>
-          <a><i class="xbox icon"></i></a>
-          <a><i class="nintendo switch icon"></i></a>
+    <ng-container *ngFor="let game of games">
+      <div class="ui card">
+        <a class="image" href="#">
+          <img *ngIf="game?.background_image" [src]="game?.background_image" />
+          <img
+            *ngIf="!game?.background_image"
+            src="https://res.cloudinary.com/adenike/image/upload/v1642002314/no-image_iah8ux.png"
+          />
+        </a>
+        <div class="content">
+          <a class="primary-color header" href="#">{{ game?.name }}</a>
+          <div class="platforms" style="margin-top: 8px">
+            <a *ngFor="let item of game?.parent_platforms">
+              <img
+                class="game-platform"
+                src="assets/images/platforms/{{ item?.platform?.slug }}.svg"
+                alt="{{ item?.platform?.slug }}"
+              />
+            </a>
+          </div>
         </div>
       </div>
-    </div>
+    </ng-container>
+  </div>
+</div>
+
+<!--
 
     <div class="ui card">
       <a class="image" href="#">
@@ -95,5 +108,4 @@
         </div>
       </div>
     </div>
-  </div>
-</div>
+ -->
