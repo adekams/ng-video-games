@@ -1,8 +1,14 @@
 .ui.card {
   background: #000;
+  display: flex;
   .content * {
     color: #ffcb9a !important;
   }
+}
+
+.ui.card > .image,
+.ui.cards > .card > .image {
+  flex: 50 0 auto;
 }
 
 i.icon {
@@ -15,4 +21,13 @@ i.icon {
 
 ::ng-deep .selection * {
   color: #000 !important;
+}
+
+.platforms {
+  display: flex;
+
+  .game-platform {
+    width: 20px;
+    margin-right: 10px;
+  }
 }
