@@ -23,11 +23,39 @@ i.icon {
   color: #000 !important;
 }
 
+// img {
+//   aspect-ratio: 3/2;
+// }
+
 .platforms {
   display: flex;
 
   .game-platform {
     width: 20px;
     margin-right: 10px;
+    aspect-ratio: 3/2;
+    object-fit: contain;
+  }
+}
+
+::ng-deep .ui.pagination.menu {
+  border: 0 solid transparent;
+  background: #1b1c1d;
+  // -webkit-box-shadow: none;
+  box-shadow: none;
+
+  .item:active,
+  .active.item {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+  }
+
+  .item.disabled {
+    color: #fff !important;
+  }
+
+  .item {
+    background: 0 0;
+    color: rgba(255, 255, 255, 0.9);
   }
 }
