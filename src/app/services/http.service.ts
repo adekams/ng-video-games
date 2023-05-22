@@ -9,13 +9,21 @@ import { APIResponse, Game } from '../models/app-filter/app-filter';
 })
 export class HttpService {
   constructor(private http: HttpClient) {}
-  getGames(order: string, search?: string): Observable<APIResponse<Game>> {
-    let params = new HttpParams().set('order', order);
+  getGames(
+    order: string,
+    page: any,
+    search?: string
+  ): Observable<APIResponse<Game>> {
+    let params = new HttpParams().set('ordering', order).set('page', page);
 
     if (search) {
-      params = new HttpParams().set('order', order).set('search', search);
+      params = new HttpParams()
+        .set('or', order)
+        .set('page', page)
+        .set('search', search);
     }
 
+    console.log('outside type is ' + typeof page);
     return this.http.get<APIResponse<Game>>(`${env.API_URL}/games`, {
       params: params,
     });
