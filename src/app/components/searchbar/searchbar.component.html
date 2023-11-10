@@ -1,5 +1,9 @@
 <div class="ui basic segment">
-  <form class="ui form" #searchForm (ngSubmit)="onSubmit(searchForm)">
+  <form
+    class="ui form"
+    [formGroup]="searchForm"
+    (ngSubmit)="onSubmit(searchForm)"
+  >
     <div class="ui stackable grid">
       <h4
         class="column"
@@ -10,6 +14,7 @@
       <div class="column" style="width: calc(100% - 50px)">
         <div class="ui right action mini input" style="width: 90%">
           <input
+            formControlName="searchQuery"
             type="text"
             placeholder="Search 500, 000+ games"
             style="color: #000 !important"

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
 @Component({
@@ -9,10 +9,15 @@ import { Router } from '@angular/router';
 })
 export class SearchbarComponent implements OnInit {
   searchForm: FormGroup;
-  constructor(private _router: Router) {}
+  constructor(private _router: Router, private fb: FormBuilder) {
+    this.searchForm = fb.group({
+      searchQuery: ['', Validators.required],
+    });
+  }
 
   ngOnInit(): void {}
   onSubmit(form: FormGroup) {
-    this._router.navigate(['search', form.value]);
+    console.log(form.value);
+    this._router.navigate(['search/', form.value.searchQuery]);
   }
 }
