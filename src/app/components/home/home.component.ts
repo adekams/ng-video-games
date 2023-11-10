@@ -35,10 +35,11 @@ export class HomeComponent implements OnInit, OnDestroy {
     'https://res.cloudinary.com/adenike/image/upload/v1642002314/no-image_iah8ux.png';
   totalItems: number = 200;
   currentPage: number = 1;
+  collection: any[] = this.games;
   constructor(
     private http: HttpService,
     private activatedRoute: ActivatedRoute
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.sortBy = this.sortBy ? this.sortBy : this.sortOptions[0];
@@ -60,6 +61,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     console.log(item);
   }
   searchGames(sort: string, page: any, search?: string): void {
+    console.log('sorting ', sort)
     this.pending = true;
     if (this.sortOrder == 'asc') {
       sort = /^-/.test(sort) ? sort : `-${sort}`;
