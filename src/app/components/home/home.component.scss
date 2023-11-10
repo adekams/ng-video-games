@@ -11,6 +11,11 @@
   flex: 50 0 auto;
 }
 
+.ui.card > .image > img,
+.ui.cards > .card > .image > img {
+  max-height: 15rem;
+}
+
 i.icon {
   color: #fff;
 }

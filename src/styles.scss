@@ -22,13 +22,18 @@ body {
 }
 
 .ui.primary.button {
-  background: #d1e8e2;
-  color: #116466;
+  background: #063264;
+  color: #f0eded;
 
   &:hover {
-    background: #a1c7bd;
-    color: #116466;
+    background: #2463a9;
+    color: #fff;
   }
+}
+
+.ui.loading.segment:before {
+  background: rgba(255, 255, 255, 0.2) !important;
+  // border-color: #ff0000 rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) !important;
 }
 
 .ui.basic.segment {
