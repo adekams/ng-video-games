@@ -1,4 +1,4 @@
-<div class="ui container">
+<div class="ui container" style="padding: 20px;">
   <!-- <div class="slider">
     <ng-container *ngFor="let item of game?.short_screenshots">
       <input type="radio" name="slider" [title]="item?.id" checked="checked" class="slider__nav" />
@@ -11,14 +11,14 @@
       </ng-container>
     </div>
   </div> -->
-
-  <div class="top" style="display: flex;">
+  <h1>{{game?.name}}</h1>
+  <div class="top" style="display: flex; flex-direction: column;">
     <div class="bg-img">
-      <img *ngIf="game?.background_image" [src]="game?.background_image" />
+      <img *ngIf="game?.background_image" [src]="game?.background_image" alt="{{game?.name}}" />
       <img *ngIf="!game?.background_image"
         src="https://res.cloudinary.com/adenike/image/upload/v1642002314/no-image_iah8ux.png" />
     </div>
-    <div class="others">
+    <div class="others" style="display: flex; flex-wrap: wrap;">
       <div class="flex">
         <p class="header-text">Name:</p>
         <p class="body-text">{{game?.name}}</p>
@@ -34,18 +34,47 @@
       <div class="flex">
         <p class="header-text">Genre:</p>
         <p class="body-text" *ngFor="let genre of game?.genres">
-          <img class="game-platform" src="assets/images/platforms/{{ item?.platform?.slug }}.svg"
-            alt="{{ genre?.slug }}" /> {{genre?.name}}
+          <!-- <img class="game-platform"  src="assets/images/platforms/{{ item?.platform?.slug }}.svg" alt="{{ genre?.slug }}" />  -->
+          {{genre?.name}}
         </p>
       </div>
+
+      <div class="flex">
+        <p class="header-text">Released:</p>
+        <p class="body-text">{{game?.released | date}}</p>
+      </div>
+
+      <div class="flex">
+        <p class="header-text">Review:</p>
+        <p class="body-text">{{game?.reviews_count}}</p>
+      </div>
+
+      <div class="flex">
+        <p class="header-text">Updated:</p>
+        <p class="body-text">{{game?.updated| date}}</p>
+      </div>
+
+      <div class="flex">
+        <p class="header-text">Parent Platform:</p>
+        <p class="body-text" *ngFor="let platform of game?.parent_platforms">
+          <img class="game-platform" src="assets/images/platforms/{{ item?.platform?.platform?.slug }}.svg"
+            alt="{{ platform?.slug }}" />
+          {{platform?.platform?.name}}
+        </p>
+      </div>
+      <div class="flex"></div>
+
     </div>
 
-    <section style="display: flex; justify-content: space-evenly;">
-      <ng-container *ngFor="let item of game?.short_screenshots">
+    <section>
+      <h2>More Images</h2>
+      <div style="display: flex; justify-content: space-between; flex-wrap: wrap;">
+        <ng-container *ngFor="let item of game?.short_screenshots">
 
-        <img [src]="item?.image" alt="image" />
+          <img [src]="item?.image" alt="image" style="width: 50%;" />
 
-      </ng-container>
+        </ng-container>
+      </div>
     </section>
   </div>
 </div>
