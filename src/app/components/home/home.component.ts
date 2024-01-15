@@ -91,6 +91,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   goToItem(item) {
+    return;
     localStorage.setItem('game', JSON.stringify(item));
     this.router.navigateByUrl('detail');
   }
