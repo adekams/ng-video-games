@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { APIResponse, Game } from 'src/app/models/app-filter/app-filter';
@@ -38,7 +38,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   collection: any[] = this.games;
   constructor(
     private http: HttpService,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private router: Router,
   ) { }
 
   ngOnInit(): void {
@@ -87,6 +88,12 @@ export class HomeComponent implements OnInit, OnDestroy {
           console.log(error);
         }
       );
+  }
+
+  goToItem(item) {
+    return;
+    localStorage.setItem('game', JSON.stringify(item));
+    this.router.navigateByUrl('detail');
   }
 
   nextPage(page: number) {
