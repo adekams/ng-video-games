@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-searchbar',
@@ -13,6 +14,16 @@ export class SearchbarComponent implements OnInit {
   constructor(private _router: Router, private fb: FormBuilder) {
     this.searchForm = fb.group({
       searchQuery: ['', Validators.required],
+    });
+
+    this.searchForm.get("searchQuery").valueChanges
+    .pipe(
+      debounceTime(500),
+      distinctUntilChanged()
+    )
+    .subscribe((i) => {
+      console.log('debouncing ', i)
+      this._router.navigate(['search/', this.searchForm.value.searchQuery]);
     });
   }
 
