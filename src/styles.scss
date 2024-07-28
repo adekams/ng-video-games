@@ -8,12 +8,17 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   /* padding-top: 50px; */
   height: 100%;
-  background-image: url("assets/images/background/gamepad.jpg");
+  // background-image: url("assets/images/background/gamepad.jpg");
+  // background-color: rgb(255 255 255 / 0.3);
+  background: hsl(213, 12%, 18%);
   background-size: cover;
   background-repeat: no-repeat;
-  background-color: rgb(255 255 255 / 0.3);
   backdrop-filter: blur(3px);
   background-attachment: fixed;
+}
+
+.material-symbols-outlined {
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
 }
 
 .container {

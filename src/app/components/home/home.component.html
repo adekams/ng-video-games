@@ -1,57 +1,59 @@
 <!-- <form class="ui form" style="background: green"> -->
+<div class="ui container">
+  <app-searchbar></app-searchbar>
+  <div class="ui basic segment" style="display: flex; justify-content: space-between; align-items: center">
+    <div class="custom-select">
+      <select [(ngModel)]="sortBy" (change)="searchGames(sortBy.value, 5)">
+        <option ngDefaultControl [ngValue]="option" *ngFor="let option of sortOptions">{{option.name}}
+        </option>
+      </select>
+    </div>
 
-<div class="ui basic segment" style="display: flex; justify-content: space-between; align-items: center">
-  <div class="custom-select">
-    <select [(ngModel)]="sortBy" (change)="searchGames(sortBy.value, 5)">
-      <option ngDefaultControl [ngValue]="option" *ngFor="let option of sortOptions">{{option.name}}
-      </option>
-    </select>
-  </div>
-
-  <div class="ui basic segment" style="padding: 15px 0">
-    <a class="ui pointing dropdown link item" appMargin marginR="4" suiDropdown>
-      <i [ngClass]="
+    <div class="ui basic segment" style="padding: 15px 0">
+      <a class="ui pointing dropdown link item" appMargin marginR="4" suiDropdown>
+        <i [ngClass]="
           sortOrder == 'desc'
             ? 'large sort alphabet down icon'
             : 'large sort alphabet up icon'
         "></i>
-      <div class="left menu" suiDropdownMenu>
-        <div class="item" (click)="onSortResults('desc')">Desc</div>
-        <div class="item" (click)="onSortResults('asc')">Asc</div>
-      </div>
-    </a>
+        <div class="left menu" suiDropdownMenu>
+          <div class="item" (click)="onSortResults('desc')">Desc</div>
+          <div class="item" (click)="onSortResults('asc')">Asc</div>
+        </div>
+      </a>
+    </div>
   </div>
-</div>
-<!-- </form> -->
+  <!-- </form> -->
 
-<div class="ui basic segment" [ngClass]="{ loading: pending }" style="background: transparent !important">
-  <div class="ui four doubling cards">
-    <ng-container
-      *ngFor="let game of games| paginate: { itemsPerPage: 10, currentPage: currentPage, totalItems: totalItems }">
-      <div class="ui card">
-        <a class="image" href="#">
-          <img *ngIf="game?.background_image" [src]="game?.background_image" />
-          <img *ngIf="!game?.background_image"
-            src="https://res.cloudinary.com/adenike/image/upload/v1642002314/no-image_iah8ux.png" />
-        </a>
-        <div class="content">
-          <a class="primary-color header" href="#">{{ game?.name }}</a>
-          <div class="platforms" style="margin-top: 8px">
-            <a *ngFor="let item of game?.parent_platforms">
-              <img class="game-platform" src="assets/images/platforms/{{ item?.platform?.slug }}.svg"
-                alt="{{ item?.platform?.slug }}" />
-            </a>
+  <div class="ui basic segment" [ngClass]="{ loading: pending }" style="background: transparent !important">
+    <div class="ui four doubling cards">
+      <ng-container
+        *ngFor="let game of games| paginate: { itemsPerPage: 10, currentPage: currentPage, totalItems: totalItems }">
+        <div class="ui card" (click)="goToItem(game)">
+          <a class="image">
+            <img *ngIf="game?.background_image" [src]="game?.background_image" />
+            <img *ngIf="!game?.background_image"
+              src="https://res.cloudinary.com/adenike/image/upload/v1642002314/no-image_iah8ux.png" />
+          </a>
+          <div class="content">
+            <a class="primary-color header">{{ game?.name }}</a>
+            <div class="platforms" style="margin-top: 8px">
+              <a *ngFor="let item of game?.parent_platforms">
+                <img class="game-platform" src="assets/images/platforms/{{ item?.platform?.slug }}.svg"
+                  alt="{{ item?.platform?.slug }}" />
+              </a>
+            </div>
           </div>
         </div>
-      </div>
-    </ng-container>
+      </ng-container>
+    </div>
   </div>
-</div>
 
-<div class="ui segments">
-  <div class="ui basic segment right aligned">
-    <pagination-controls (pageChange)="nextPage($event)" directionLinks="true" autoHide="true" responsive="true"
-      previousLabel="Previous" nextLabel="Next" screenReaderPaginationLabel="Pagination" screenReaderPageLabel="page"
-      screenReaderCurrentLabel="You're on page"></pagination-controls>
+  <div class="ui segments">
+    <div class="ui basic segment right aligned">
+      <pagination-controls (pageChange)="nextPage($event)" directionLinks="true" autoHide="true" responsive="true"
+        previousLabel="Previous" nextLabel="Next" screenReaderPaginationLabel="Pagination" screenReaderPageLabel="page"
+        screenReaderCurrentLabel="You're on page"></pagination-controls>
+    </div>
   </div>
 </div>

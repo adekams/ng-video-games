@@ -10,9 +10,11 @@ import { HomeComponent } from './components/home/home.component';
 import { HttpService } from './services/http.service';
 import { HttpHeadersInterceptor } from './interceptors/http-headers.interceptor';
 import { NgxPaginationModule } from 'ngx-pagination';
+import { GameDetailComponent } from './components/game-detail/game-detail.component';
+import { SliderComponent } from './components/slider/slider.component';
 
 @NgModule({
-  declarations: [AppComponent, SearchbarComponent, HomeComponent],
+  declarations: [AppComponent, SearchbarComponent, HomeComponent, GameDetailComponent, SliderComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,
