@@ -1,25 +1,29 @@
-<div class="ui basic segment">
+<div class="searchbar-segment">
   <form
-    class="ui form"
+    class="searchbar-form"
     [formGroup]="searchForm"
     (ngSubmit)="onSubmit(searchForm)"
   >
-    <div class="ui stackable grid">
-      <h4
-        class="column"
-        style="width: 50px; margin-bottom: 0; align-self: center"
-      >
-        <a routerLink="/" style="color: #fff">Home</a>
-      </h4>
-      <div class="column" style="width: calc(100% - 50px)">
-        <div class="ui right action mini input" style="width: 90%">
+    <div class="searchbar-grid">
+      <div class="home-column">
+        <img
+          src="assets/icons/game-controller.png"
+          alt="Logo"
+          class="brand-icon"
+        />
+        <a routerLink="/" class="brand-link">
+          <span class="brand-title">VideoGamesDB</span>
+        </a>
+      </div>
+      <div class="search-column">
+        <div class="search-input-wrapper">
           <input
             formControlName="searchQuery"
+            class="search-input"
             type="text"
-            placeholder="Search 500, 000+ games"
-            style="color: #000 !important"
+            placeholder="Search 500,000+ games"
           />
-          <button class="ui primary button">Search</button>
+          <button class="search-button" type="submit">Search</button>
         </div>
       </div>
     </div>
