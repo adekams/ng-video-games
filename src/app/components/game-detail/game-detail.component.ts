@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'app-game-detail',
-  templateUrl: './game-detail.component.html',
-  styleUrls: ['./game-detail.component.scss']
+    selector: 'app-game-detail',
+    templateUrl: './game-detail.component.html',
+    styleUrls: ['./game-detail.component.scss'],
+    standalone: false
 })
 export class GameDetailComponent implements OnInit {
   game = JSON.parse(localStorage.getItem('game'));
