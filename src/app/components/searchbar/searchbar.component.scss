@@ -1,0 +1,124 @@
+$primary-color: #ff6b6b;
+$white: #ffffff;
+$dark-bg: #1a1a1a;
+$spacing-md: 16px;
+$spacing-sm: 8px;
+$radius-md: 8px;
+
+.searchbar-segment {
+  background: $dark-bg;
+  border: none;
+  padding: $spacing-md;
+  margin-bottom: $spacing-md;
+}
+
+.searchbar-form {
+  width: 100%;
+}
+
+.searchbar-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: $spacing-md;
+  align-items: center;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: $spacing-sm;
+  }
+}
+
+.home-column {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  white-space: nowrap;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+.brand-icon {
+  width: 40px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.brand-link {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+
+  &:hover .brand-title {
+    color: #ff8888;
+  }
+}
+
+.brand-title {
+  color: $primary-color;
+  font-size: 18px;
+  font-weight: bold;
+  transition: color 0.2s ease;
+}
+
+.search-column {
+  display: flex;
+  flex: 1;
+  min-width: 180px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    min-width: 100%;
+  }
+}
+
+.search-input-wrapper {
+  display: flex;
+  width: 100%;
+  gap: $spacing-sm;
+}
+
+.search-input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 2px solid transparent;
+  border-radius: $radius-md;
+  background: rgba(255, 255, 255, 0.1);
+  color: $white;
+  font-size: 14px;
+  transition: all 0.2s ease;
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 8px rgba(255, 107, 107, 0.3);
+  }
+}
+
+.search-button {
+  padding: 10px 20px;
+  background: $primary-color;
+  border: none;
+  border-radius: $radius-md;
+  color: $white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #ff5252;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}

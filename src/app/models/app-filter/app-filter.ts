@@ -8,11 +8,12 @@ export interface Game {
   description: string;
   metacritic: number;
   genres: Array<Genre>;
-  parent_platform: Array<ParentPlatform>;
+  parent_platforms: Array<ParentPlatform>;
   publishers: Array<Publishers>;
   ratings: Array<Ratings>;
   screenshots: Array<Screenshots>;
   trailers: Array<Trailers>;
+  tags?: Array<Tag>;
 }
 
 export interface APIResponse<T> {
@@ -46,4 +47,9 @@ interface Trailers {
   data: {
     max: string;
   };
+}
+
+interface Tag {
+  name: string;
+  language: string;
 }
