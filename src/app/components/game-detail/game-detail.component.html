@@ -1,81 +1,148 @@
-<div class="ui container" style="padding: 20px;">
-  <!-- <div class="slider">
-    <ng-container *ngFor="let item of game?.short_screenshots">
-      <input type="radio" name="slider" [title]="item?.id" checked="checked" class="slider__nav" />
-    </ng-container>
-    <div class="slider__inner">
-      <ng-container *ngFor="let item of game?.short_screenshots">
-        <div class="slider__contents">
-          <img [src]="item?.image" alt="image" />
+<div class="game-detail-container">
+  <!-- Header Section -->
+  <div class="header">
+    <h1 class="game-title">{{ game?.name }}</h1>
+  </div>
+
+  <!-- Hero Image -->
+  <div class="hero-image">
+    <img
+      *ngIf="game?.background_image"
+      [src]="game?.background_image"
+      alt="{{ game?.name }}"
+    />
+    <img
+      *ngIf="!game?.background_image"
+      src="https://res.cloudinary.com/adenike/image/upload/v1642002314/no-image_iah8ux.png"
+      alt="No image available"
+    />
+  </div>
+
+  <!-- Info Cards Grid -->
+  <div class="info-cards">
+    <!-- Name Card -->
+    <div class="info-card">
+      <div class="card-label">Name</div>
+      <div class="card-value">{{ game?.name }}</div>
+    </div>
+
+    <!-- Rating Card -->
+    <div class="info-card">
+      <div class="card-label">Rating</div>
+      <div class="card-value">
+        <span class="rating-value">{{ game?.metacritic }}</span>
+        <img src="assets/icons/star.svg" alt="Star" class="rating-star" />
+      </div>
+    </div>
+
+    <!-- Released Card -->
+    <div class="info-card">
+      <div class="card-label">Released</div>
+      <div class="card-value">{{ game?.released | date: "mediumDate" }}</div>
+    </div>
+
+    <!-- Reviews Card -->
+    <div class="info-card">
+      <div class="card-label">Reviews</div>
+      <div class="card-value">{{ game?.reviews_count }}</div>
+    </div>
+  </div>
+
+  <!-- Genres Section -->
+  <section class="section">
+    <h2 class="section-title">Genres</h2>
+    <div *ngIf="game?.genres?.length; else noGenres" class="pills-container">
+      <span *ngFor="let genre of game?.genres" class="pill">{{
+        genre?.name
+      }}</span>
+    </div>
+    <ng-template #noGenres>
+      <div class="empty-state">No genres available</div>
+    </ng-template>
+  </section>
+
+  <!-- Platforms Section -->
+  <section class="section">
+    <h2 class="section-title">Platforms</h2>
+    <div
+      *ngIf="game?.parent_platforms?.length; else noPlatforms"
+      class="platforms"
+    >
+      <span
+        *ngFor="let platform of game?.parent_platforms"
+        class="platform-badge"
+      >
+        {{ platform?.platform?.name }}
+      </span>
+    </div>
+    <ng-template #noPlatforms>
+      <div class="empty-state">No platforms available</div>
+    </ng-template>
+  </section>
+
+  <!-- Rating Breakdown Section -->
+  <section class="section" *ngIf="game?.ratings?.length">
+    <h2 class="section-title">Rating Breakdown</h2>
+    <div class="rating-breakdown">
+      <div *ngFor="let rating of game?.ratings" class="rating-item">
+        <div class="rating-label">{{ rating?.title }}</div>
+        <div class="rating-bar-container">
+          <div
+            class="rating-bar"
+            [style.width]="
+              (rating?.count / (game?.ratings[0]?.count || 1)) * 100 + '%'
+            "
+          ></div>
         </div>
-      </ng-container>
+        <div class="rating-count">{{ rating?.count }}</div>
+      </div>
     </div>
-  </div> -->
-  <h1>{{game?.name}}</h1>
-  <div class="top" style="display: flex; flex-direction: column;">
-    <div class="bg-img">
-      <img *ngIf="game?.background_image" [src]="game?.background_image" alt="{{game?.name}}" />
-      <img *ngIf="!game?.background_image"
-        src="https://res.cloudinary.com/adenike/image/upload/v1642002314/no-image_iah8ux.png" />
+  </section>
+
+  <!-- Tags Section -->
+  <section class="section" *ngIf="game?.tags?.length">
+    <h2 class="section-title">Tags & Features</h2>
+    <div class="tags-container">
+      <span
+        *ngFor="let tag of game?.tags?.slice(0, 20)"
+        class="tag"
+        [title]="tag?.name"
+      >
+        {{ tag?.name }}
+      </span>
+      <span *ngIf="game?.tags?.length > 20" class="tag-more"
+        >+{{ game?.tags?.length - 20 }}</span
+      >
     </div>
-    <div class="others" style="display: flex; flex-wrap: wrap;">
-      <div class="flex">
-        <p class="header-text">Name:</p>
-        <p class="body-text">{{game?.name}}</p>
-      </div>
+  </section>
 
-      <div class="flex">
-        <p class="header-text">Rating:</p>
-        <p class="body-text">{{game?.rating}} <span class="material-symbols-outlined">
-            grade
-          </span></p>
+  <!-- Screenshots Section -->
+  <section class="section" *ngIf="game?.short_screenshots?.length">
+    <h2 class="section-title">Screenshots</h2>
+    <div class="screenshots-gallery">
+      <div
+        *ngFor="let screenshot of game?.short_screenshots"
+        class="screenshot-item"
+        (click)="openImagePreview(screenshot?.image)"
+      >
+        <img [src]="screenshot?.image" alt="Screenshot" />
+        <div class="screenshot-overlay">
+          <span class="expand-icon">⤢</span>
+        </div>
       </div>
-
-      <div class="flex">
-        <p class="header-text">Genre:</p>
-        <p class="body-text" *ngFor="let genre of game?.genres">
-          <!-- <img class="game-platform"  src="assets/images/platforms/{{ item?.platform?.slug }}.svg" alt="{{ genre?.slug }}" />  -->
-          {{genre?.name}}
-        </p>
-      </div>
-
-      <div class="flex">
-        <p class="header-text">Released:</p>
-        <p class="body-text">{{game?.released | date}}</p>
-      </div>
-
-      <div class="flex">
-        <p class="header-text">Review:</p>
-        <p class="body-text">{{game?.reviews_count}}</p>
-      </div>
-
-      <div class="flex">
-        <p class="header-text">Updated:</p>
-        <p class="body-text">{{game?.updated| date}}</p>
-      </div>
-
-      <div class="flex">
-        <p class="header-text">Parent Platform:</p>
-        <p class="body-text" *ngFor="let platform of game?.parent_platforms">
-          <img class="game-platform" src="assets/images/platforms/{{ item?.platform?.platform?.slug }}.svg"
-            alt="{{ platform?.slug }}" />
-          {{platform?.platform?.name}}
-        </p>
-      </div>
-      <div class="flex"></div>
-
     </div>
+  </section>
 
-    <section>
-      <h2>More Images</h2>
-      <div style="display: flex; justify-content: space-between; flex-wrap: wrap;">
-        <ng-container *ngFor="let item of game?.short_screenshots">
-
-          <img [src]="item?.image" alt="image" style="width: 50%;" />
-
-        </ng-container>
-      </div>
-    </section>
+  <!-- Image Preview Modal -->
+  <div
+    *ngIf="selectedImage"
+    class="image-preview-modal"
+    (click)="closeImagePreview()"
+  >
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <img [src]="selectedImage" alt="Preview" class="preview-image" />
+      <button class="close-button" (click)="closeImagePreview()">✕</button>
+    </div>
   </div>
 </div>
 
