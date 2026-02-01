@@ -66,18 +66,18 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "video-games-db:build"
+            "buildTarget": "video-games-db:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "video-games-db:build:production"
+              "buildTarget": "video-games-db:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "video-games-db:build"
+            "buildTarget": "video-games-db:build"
           }
         },
         "test": {
