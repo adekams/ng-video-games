@@ -1,59 +1,154 @@
-<!-- <form class="ui form" style="background: green"> -->
 <div class="ui container">
-  <app-searchbar></app-searchbar>
-  <div class="ui basic segment" style="display: flex; justify-content: space-between; align-items: center">
-    <div class="custom-select">
-      <select [(ngModel)]="sortBy" (change)="searchGames(sortBy.value, 5)">
-        <option ngDefaultControl [ngValue]="option" *ngFor="let option of sortOptions">{{option.name}}
+  <app-searchbar [showSearch]="true"></app-searchbar>
+  <!-- Controls Section -->
+  <div
+    class="ui basic segment"
+    style="
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    "
+  >
+    <!-- Sort By Dropdown -->
+    <div class="custom-select" style="flex: 1; min-width: 200px">
+      <select
+        [(ngModel)]="sortBy"
+        (change)="searchGames(sortBy.value, 5)"
+        title="Sort games by"
+      >
+        <option [ngValue]="option" *ngFor="let option of sortOptions">
+          {{ option.name }}
         </option>
       </select>
     </div>
 
-    <div class="ui basic segment" style="padding: 15px 0">
-      <a class="ui pointing dropdown link item" appMargin marginR="4" suiDropdown>
-        <i [ngClass]="
-          sortOrder == 'desc'
-            ? 'large sort alphabet down icon'
-            : 'large sort alphabet up icon'
-        "></i>
-        <div class="left menu" suiDropdownMenu>
-          <div class="item" (click)="onSortResults('desc')">Desc</div>
-          <div class="item" (click)="onSortResults('asc')">Asc</div>
-        </div>
-      </a>
+    <!-- Sort Order Toggle -->
+    <div
+      class="ui basic segment"
+      style="padding: 0; display: flex; gap: 10px; align-items: center"
+    >
+      <button
+        class="ui button"
+        [class.active]="sortOrder === 'desc'"
+        (click)="onSortResults('desc')"
+        title="Sort descending"
+      >
+        <i class="large sort alphabet down icon"></i>
+        Desc
+      </button>
+      <button
+        class="ui button"
+        [class.active]="sortOrder === 'asc'"
+        (click)="onSortResults('asc')"
+        title="Sort ascending"
+      >
+        <i class="large sort alphabet up icon"></i>
+        Asc
+      </button>
     </div>
   </div>
-  <!-- </form> -->
 
-  <div class="ui basic segment" [ngClass]="{ loading: pending }" style="background: transparent !important">
+  <!-- Games Loading Container -->
+  <div
+    class="ui basic segment"
+    [ngClass]="{ loading: pending }"
+    style="background: transparent !important"
+  >
     <div class="ui four doubling cards">
       <ng-container
-        *ngFor="let game of games| paginate: { itemsPerPage: 10, currentPage: currentPage, totalItems: totalItems }">
-        <div class="ui card" (click)="goToItem(game)">
-          <a class="image">
-            <img *ngIf="game?.background_image" [src]="game?.background_image" />
-            <img *ngIf="!game?.background_image"
-              src="https://res.cloudinary.com/adenike/image/upload/v1642002314/no-image_iah8ux.png" />
-          </a>
+        *ngFor="
+          let game of games
+            | paginate
+              : {
+                  itemsPerPage: 10,
+                  currentPage: currentPage,
+                  totalItems: totalItems,
+                }
+        "
+      >
+        <div
+          class="ui card"
+          (click)="goToItem(game)"
+          [attr.aria-label]="'View ' + game?.name"
+        >
+          <div class="image">
+            <img
+              *ngIf="game?.background_image"
+              [src]="game?.background_image"
+              [alt]="game?.name"
+              loading="lazy"
+            />
+            <img
+              *ngIf="!game?.background_image"
+              src="https://res.cloudinary.com/adenike/image/upload/v1642002314/no-image_iah8ux.png"
+              alt="No image available"
+              loading="lazy"
+            />
+          </div>
           <div class="content">
-            <a class="primary-color header">{{ game?.name }}</a>
-            <div class="platforms" style="margin-top: 8px">
-              <a *ngFor="let item of game?.parent_platforms">
-                <img class="game-platform" src="assets/images/platforms/{{ item?.platform?.slug }}.svg"
-                  alt="{{ item?.platform?.slug }}" />
-              </a>
+            <div class="header primary-color">{{ game?.name }}</div>
+            <div class="platforms">
+              @if (game?.parent_platforms?.length) {
+                @for (
+                  item of game?.parent_platforms;
+                  let last = $last;
+                  track $index
+                ) {
+                  <span>
+                    <img
+                      class="game-platform"
+                      src="assets/images/platforms/{{
+                        convertPlatformNametoLowercase(item?.platform?.name)
+                      }}.svg"
+                      [alt]="item?.platform?.name"
+                      title="{{ item?.platform?.name }}"
+                    />
+                    @if (!last) {
+                      ,
+                    }
+                    <!-- optional separator if not last -->
+                  </span>
+                }
+              }
+            </div>
+            <div style="margin-top: 12px; font-size: 13px; opacity: 0.8">
+              @if (game && game.ratings && game.ratings.length) {
+                <img class="review-star" src="assets/icons/star.svg" />
+                {{ game.ratings[0].count || 0 }} reviews
+              }
             </div>
           </div>
         </div>
       </ng-container>
     </div>
+
+    <!-- Empty State -->
+    <div
+      *ngIf="games.length === 0 && !pending"
+      style="text-align: center; padding: 40px"
+    >
+      <h3>No games found</h3>
+      <p>Try adjusting your search or sorting options</p>
+    </div>
   </div>
 
+  <!-- Pagination -->
   <div class="ui segments">
     <div class="ui basic segment right aligned">
-      <pagination-controls (pageChange)="nextPage($event)" directionLinks="true" autoHide="true" responsive="true"
-        previousLabel="Previous" nextLabel="Next" screenReaderPaginationLabel="Pagination" screenReaderPageLabel="page"
-        screenReaderCurrentLabel="You're on page"></pagination-controls>
+      <pagination-controls
+        (pageChange)="nextPage($event)"
+        [directionLinks]="true"
+        [autoHide]="true"
+        [responsive]="true"
+        previousLabel="Previous"
+        nextLabel="Next"
+        screenReaderPaginationLabel="Pagination"
+        screenReaderPageLabel="page"
+        screenReaderCurrentLabel="You're on page"
+      >
+      </pagination-controls>
     </div>
   </div>
 </div>

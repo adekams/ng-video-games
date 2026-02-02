@@ -28,6 +28,12 @@ speed-measure-plugin*.json
 
 # IDE - VSCode
 .vscode/*
+
+# Environment files with secrets
+.env
+.env.local
+.env.*.local
+src/environments/environment.ts
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json

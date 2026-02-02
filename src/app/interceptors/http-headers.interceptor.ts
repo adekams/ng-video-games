@@ -1,31 +1,16 @@
-import { Injectable } from '@angular/core';
-import {
-  HttpRequest,
-  HttpHandler,
-  HttpEvent,
-  HttpInterceptor,
-} from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
-@Injectable()
-export class HttpHeadersInterceptor implements HttpInterceptor {
-  constructor() {}
+import { HttpInterceptorFn } from '@angular/common/http';
 
-  intercept(
-    request: HttpRequest<any>,
-    next: HttpHandler
-  ): Observable<HttpEvent<any>> {
-    request = request.clone({
-      // https://rapidapi.com/accujazz/api/rawg-video-games-database/details
-      setHeaders: {
-        'x-rapidapi-key': '42d813360dmsh8137b4197221fb2p19ed88jsn9b39155216ce',
-        'x-rapidapi-host': 'rawg-video-games-database.p.rapidapi.com',
-      },
-      // rawg.io
-      setParams: {
-        key: '613215ec3d364759ada7617f5c86edf0',
-      },
-    });
-    return next.handle(request);
-  }
-}
+export const httpHeadersInterceptor: HttpInterceptorFn = (req, next) => {
+  const modifiedReq = req.clone({
+    setHeaders: {
+      'x-rapidapi-key': environment.RAPIDAPI_KEY || '',
+      'x-rapidapi-host': 'rawg-video-games-database.p.rapidapi.com',
+    },
+    setParams: {
+      key: environment.RAWG_API_KEY || '',
+    },
+  });
+  return next(modifiedReq);
+};
