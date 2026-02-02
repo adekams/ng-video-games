@@ -28,9 +28,9 @@
       <!-- Rating Card -->
       <div class="info-card">
         <p class="header-text primary">Rating</p>
-        <p class="body-text large">
-          {{ game?.rating || "N/A" }}
-          <span class="rating-star">⭐</span>
+        <p class="body-text medium">
+          {{ game?.rating }}
+          <span class="rating-star"><i class="star icon"></i></span>
         </p>
       </div>
 
@@ -45,13 +45,13 @@
       <!-- Review Count Card -->
       <div class="info-card">
         <p class="header-text primary">Reviews</p>
-        <p class="body-text large">{{ game?.reviews_count }}</p>
+        <p class="body-text medium">{{ game?.reviews_count }}</p>
       </div>
 
       <!-- Updated Card -->
       <div class="info-card">
         <p class="header-text secondary">Updated</p>
-        <p class="body-text small">
+        <p class="body-text medium">
           {{ game?.updated | date: "dd MMM yyyy" }}
         </p>
       </div>
@@ -76,30 +76,28 @@
     <div class="platforms-section">
       <h2 class="platforms-title">Platforms</h2>
       <div class="platforms-container">
-        <span *ngIf="game?.parent_platforms?.length; else noPlatforms">
+        @if (game?.parent_platforms?.length) {
           <span
             *ngFor="let platform of game?.parent_platforms"
             class="platform-item"
           >
             {{ platform?.platform?.name }}
           </span>
-        </span>
-        <ng-template #noPlatforms>
+        } @else {
           <span class="no-platforms-text">No platform info</span>
-        </ng-template>
+        }
       </div>
     </div>
 
-    <!-- Rating Breakdown Section - Google Play Style -->
+    <!-- Ratings -->
     <div class="rating-section" *ngIf="game?.ratings?.length">
-      <h2 class="rating-title">Rating Breakdown</h2>
+      <h2 class="rating-title">Ratings</h2>
       <div class="rating-grid">
         <div
           *ngFor="let rating of game?.ratings; let last = last"
           class="rating-row-container"
           [style.--rating-color]="getRatingColor(rating?.title)"
         >
-          <!-- Rating Label -->
           <div class="rating-label-wrapper">
             <span class="rating-label-text">
               {{ rating?.title }}
@@ -127,7 +125,6 @@
             </span>
           </div>
 
-          <!-- Vote Count -->
           <div class="rating-count-wrapper">
             <span class="rating-count-text">
               {{ rating?.count }}
@@ -137,9 +134,9 @@
       </div>
     </div>
 
-    <!-- Tags Section (Features/Gameplay) -->
+    <!-- Tags -->
     <div class="tags-section">
-      <h2 class="tags-title">Tags & Features</h2>
+      <h2 class="tags-title">Tags</h2>
       <div class="tags-container">
         <span
           *ngFor="let tag of game?.tags?.slice(0, 20) || []"
@@ -160,8 +157,7 @@
       class="screenshots-section"
       *ngIf="game?.short_screenshots?.length"
     >
-      <h2 class="screenshots-title">Screenshots Gallery</h2>
-      <p class="screenshots-subtitle">Click to expand</p>
+      <h2 class="screenshots-title">Screenshots</h2>
       <div class="screenshots-grid">
         <ng-container
           *ngFor="let item of game?.short_screenshots; let i = index"
@@ -177,9 +173,7 @@
               loading="lazy"
             />
             <div class="screenshot-overlay">
-              <div class="expand-icon">
-                <i class="large external alternate icon"></i>
-              </div>
+              <div class="expand-icon">⤢</div>
             </div>
           </div>
         </ng-container>
@@ -187,7 +181,7 @@
     </section>
   </div>
 
-  <!-- Screenshot Modal/Lightbox -->
+  <!-- Screenshot Modal/Lightbox with Swipe Support -->
   <div
     class="screenshot-modal"
     [class.active]="isModalOpen"
@@ -198,6 +192,7 @@
 
     <!-- Modal Content -->
     <div class="modal-content">
+      <!-- Close Button (Above image) -->
       <button
         class="modal-close-btn"
         (click)="closeModal()"
@@ -206,43 +201,21 @@
         &times;
       </button>
 
-      <!-- Main Image -->
+      <!-- Main Image Container with Smooth Transitions -->
       <div class="modal-image-container">
         <img
           *ngIf="game?.short_screenshots?.[selectedScreenshotIndex]"
           [src]="game.short_screenshots[selectedScreenshotIndex].image"
           [alt]="'Screenshot ' + (selectedScreenshotIndex + 1)"
           class="modal-image"
+          [class.transitioning]="isTransitioning"
         />
       </div>
 
-      <!-- Navigation Controls -->
-      <div class="modal-controls">
-        <!-- Previous Button -->
-        <button
-          class="modal-nav-btn prev-btn"
-          (click)="previousScreenshot()"
-          aria-label="Previous screenshot"
-          *ngIf="game?.short_screenshots?.length > 1"
-        >
-          <i class="chevron left large icon"></i>
-        </button>
-
-        <!-- Image Counter -->
-        <div class="modal-counter">
-          {{ selectedScreenshotIndex + 1 }} /
-          {{ game?.short_screenshots?.length }}
-        </div>
-
-        <!-- Next Button -->
-        <button
-          class="modal-nav-btn next-btn"
-          (click)="nextScreenshot()"
-          aria-label="Next screenshot"
-          *ngIf="game?.short_screenshots?.length > 1"
-        >
-          <i class="chevron right large icon"></i>
-        </button>
+      <!-- Image Counter -->
+      <div class="modal-counter" *ngIf="game?.short_screenshots?.length > 1">
+        {{ selectedScreenshotIndex + 1 }} /
+        {{ game?.short_screenshots?.length }}
       </div>
 
       <!-- Thumbnail Strip -->
