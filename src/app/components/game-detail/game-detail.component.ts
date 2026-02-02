@@ -13,6 +13,8 @@ export class GameDetailComponent implements OnInit {
   game = this.getGame();
   isModalOpen = false;
   selectedScreenshotIndex = 0;
+  isTransitioning = false;
+  transitionDuration = 0.5; // seconds
 
   constructor() {
     console.log('game ', this.game);
@@ -41,20 +43,33 @@ export class GameDetailComponent implements OnInit {
     document.body.style.overflow = 'auto';
   }
 
+  selectScreenshot(index: number): void {
+    if (index === this.selectedScreenshotIndex) return;
+    this.isTransitioning = true;
+    this.selectedScreenshotIndex = index;
+
+    // Remove transition state after animation completes
+    setTimeout(() => {
+      this.isTransitioning = false;
+    }, this.transitionDuration * 1000);
+  }
+
   nextScreenshot(): void {
-    if (this.game?.short_screenshots?.length) {
-      this.selectedScreenshotIndex =
+    if (this.game?.short_screenshots?.length && !this.isTransitioning) {
+      const nextIndex =
         (this.selectedScreenshotIndex + 1) % this.game.short_screenshots.length;
+      this.selectScreenshot(nextIndex);
     }
   }
 
   previousScreenshot(): void {
-    if (this.game?.short_screenshots?.length) {
-      this.selectedScreenshotIndex =
+    if (this.game?.short_screenshots?.length && !this.isTransitioning) {
+      const prevIndex =
         (this.selectedScreenshotIndex -
           1 +
           this.game.short_screenshots.length) %
         this.game.short_screenshots.length;
+      this.selectScreenshot(prevIndex);
     }
   }
 
