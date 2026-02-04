@@ -19,6 +19,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 export class SearchbarComponent implements OnInit {
   @Input() showSearch: boolean = false;
   searchForm: FormGroup;
+
   constructor(
     private router: Router,
     private fb: FormBuilder,
@@ -27,15 +28,18 @@ export class SearchbarComponent implements OnInit {
       searchQuery: ['', Validators.required],
     });
 
-    this.searchForm
-      .get('searchQuery')
-      .valueChanges.pipe(debounceTime(500), distinctUntilChanged())
-      .subscribe((i) => {
-        this.router.navigate(['search/', this.searchForm.value.searchQuery]);
-      });
+    const searchControl = this.searchForm.get('searchQuery');
+    if (searchControl) {
+      searchControl.valueChanges
+        .pipe(debounceTime(500), distinctUntilChanged())
+        .subscribe((i) => {
+          this.router.navigate(['search/', this.searchForm.value.searchQuery]);
+        });
+    }
   }
 
   ngOnInit(): void {}
+
   onSubmit(form: FormGroup) {
     console.log(form.value);
     this.router.navigate(['search/', form.value.searchQuery]);

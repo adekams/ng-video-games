@@ -14,8 +14,8 @@
     <!-- Sort By Dropdown -->
     <div class="custom-select" style="flex: 1; min-width: 200px">
       <select
-        [(ngModel)]="sortBy"
-        (change)="searchGames(sortBy.value, 5)"
+        [ngModel]="selectedSortOption()"
+        (ngModelChange)="onSortOptionChange($event)"
         title="Sort games by"
       >
         <option [ngValue]="option" *ngFor="let option of sortOptions">
@@ -31,7 +31,7 @@
     >
       <button
         class="ui button"
-        [class.active]="sortOrder === 'desc'"
+        [class.active]="sortOrderValue() === 'desc'"
         (click)="onSortResults('desc')"
         title="Sort descending"
       >
@@ -40,7 +40,7 @@
       </button>
       <button
         class="ui button"
-        [class.active]="sortOrder === 'asc'"
+        [class.active]="sortOrderValue() === 'asc'"
         (click)="onSortResults('asc')"
         title="Sort ascending"
       >
@@ -50,24 +50,15 @@
     </div>
   </div>
 
-  <!-- Games Loading Container -->
+  <!-- Games Container with Infinite Scroll -->
   <div
     class="ui basic segment"
-    [ngClass]="{ loading: pending }"
+    [ngClass]="{ loading: pending() }"
     style="background: transparent !important"
   >
+    <!-- Games Grid (displays immediately after fetch) -->
     <div class="ui four doubling cards">
-      <ng-container
-        *ngFor="
-          let game of games
-            | paginate
-              : {
-                  itemsPerPage: 10,
-                  currentPage: currentPage,
-                  totalItems: totalItems,
-                }
-        "
-      >
+      <ng-container *ngFor="let game of games(); track $index">
         <div
           class="ui card"
           (click)="goToItem(game)"
@@ -120,31 +111,40 @@
       </ng-container>
     </div>
 
-    <!-- Empty State -->
+    <!-- Empty State (only show when no games loaded and not loading) -->
     <div
-      *ngIf="games.length === 0 && !pending"
+      *ngIf="shouldShowEmptyState()"
       style="text-align: center; padding: 40px"
     >
       <h3>No games found</h3>
       <p>Try adjusting your search or sorting options</p>
     </div>
-  </div>
 
-  <!-- Pagination -->
-  <div class="ui segments">
-    <div class="ui basic segment right aligned">
-      <pagination-controls
-        (pageChange)="nextPage($event)"
-        [directionLinks]="true"
-        [autoHide]="true"
-        [responsive]="true"
-        previousLabel="Previous"
-        nextLabel="Next"
-        screenReaderPaginationLabel="Pagination"
-        screenReaderPageLabel="page"
-        screenReaderCurrentLabel="You're on page"
-      >
-      </pagination-controls>
+    <!-- Infinite Scroll Trigger Element (visible but minimal) -->
+    <div
+      *ngIf="hasMoreGames() && gameCount() > 0"
+      #scrollTrigger
+      style="height: 20px; margin-top: 20px"
+      aria-hidden="true"
+    ></div>
+
+    <!-- Loading Indicator for Additional Games (only on scroll, not initial) -->
+    <div
+      *ngIf="pending() && gameCount() > 0"
+      style="text-align: center; padding: 20px; margin-top: 20px"
+    >
+      <div class="ui active loader"></div>
+      <p style="margin-top: 10px; font-size: 14px; opacity: 0.8">
+        Loading more games...
+      </p>
+    </div>
+
+    <!-- End of List Message -->
+    <div
+      *ngIf="shouldShowEndMessage()"
+      style="text-align: center; padding: 20px; opacity: 0.6; margin-top: 20px"
+    >
+      <p style="font-size: 14px">✓ All games loaded</p>
     </div>
   </div>
 </div>
