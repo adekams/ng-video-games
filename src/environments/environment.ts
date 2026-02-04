@@ -5,7 +5,8 @@
 export const environment = {
   production: false,
   API_URL: 'https://rawg-video-games-database.p.rapidapi.com',
-  API_KEY: '0473fa5b6afe4637a1f6936b3035c014',
+  RAPIDAPI_KEY: '42d813360dmsh8137b4197221fb2p19ed88jsn9b39155216ce', // TODO: Add your RapidAPI key here
+  RAWG_API_KEY: '5199bd4b595540878b8495d23adb6013',
 };
 
 /*

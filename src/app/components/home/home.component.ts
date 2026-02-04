@@ -1,15 +1,26 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Params, Router, RouterModule } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { APIResponse, Game } from 'src/app/models/app-filter/app-filter';
 import { HttpService } from '../../services/http.service';
+import { NgxPaginationModule } from 'ngx-pagination';
+import { SearchbarComponent } from '../searchbar/searchbar.component';
 
 @Component({
-    selector: 'app-home',
-    templateUrl: './home.component.html',
-    styleUrls: ['./home.component.scss'],
-    standalone: false
+  selector: 'app-home',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    NgxPaginationModule,
+    RouterModule,
+    SearchbarComponent,
+  ],
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent implements OnInit, OnDestroy {
   unsubscribe$: Subject<boolean> = new Subject();
@@ -29,29 +40,27 @@ export class HomeComponent implements OnInit, OnDestroy {
     { name: 'Rating', value: '-rating' },
     { name: 'Metacritic', value: 'metacritic' },
   ];
-  // namedOptions = this.options.map((name) => ({ name }));
   games: Array<Game> = [];
-  // sort: string;
   noImg: string =
     'https://res.cloudinary.com/adenike/image/upload/v1642002314/no-image_iah8ux.png';
   totalItems: number = 200;
   currentPage: number = 1;
   collection: any[] = this.games;
+
   constructor(
     private http: HttpService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.sortBy = this.sortBy ? this.sortBy : this.sortOptions[0];
-    // this.options = this.namedOptions;
     this.activatedRoute.params.subscribe((params: Params) => {
       if (params['game-search']) {
         this.searchGames(
           this.sortBy.value,
           this.currentPage,
-          params['game-search']
+          params['game-search'],
         );
       } else {
         this.searchGames(this.sortBy.value, this.currentPage);
@@ -59,11 +68,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
-  consoleSort(item) {
-    console.log(item);
-  }
   searchGames(sort: string, page: any, search?: string): void {
-    console.log('sorting ', sort)
+    console.log('sorting ', sort);
     this.pending = true;
     if (this.sortOrder == 'asc') {
       sort = /^-/.test(sort) ? sort : `-${sort}`;
@@ -74,36 +80,38 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.http
       .getGames(sort, this.currentPage, search)
       .pipe(takeUntil(this.unsubscribe$))
-      .subscribe(
-        (res: APIResponse<Game>) => {
+      .subscribe({
+        next: (res: APIResponse<Game>) => {
           this.games = res.results;
-
-          this.totalItems = Math.ceil(+res['count'] / res['results'].length);
+          this.totalItems = Math.ceil(
+            (res.count ?? 200) / (res.results.length || 1),
+          );
           this.currentPage = page;
-
           this.pending = false;
           console.log(this.sortOrder, sort);
         },
-        (error) => {
+        error: (error) => {
           this.pending = false;
           console.log(error);
-        }
-      );
+        },
+      });
   }
 
-  goToItem(item) {
-    return;
+  goToItem(item: Game) {
     localStorage.setItem('game', JSON.stringify(item));
     this.router.navigateByUrl('detail');
   }
 
+  convertPlatformNametoLowercase(name: string | undefined): string {
+    return !name ? '' : name.toLowerCase();
+  }
+
   nextPage(page: number) {
-    //get and assign current page
     this.currentPage = page;
     this.ngOnInit();
   }
 
-  onSortResults(order) {
+  onSortResults(order: string) {
     this.sortOrder = order;
     this.ngOnInit();
   }

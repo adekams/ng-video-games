@@ -1,192 +1,245 @@
-<div class="game-detail-container">
-  <!-- Header Section -->
-  <div class="header">
+<div class="ui container game-detail-wrapper">
+  <!-- Header with Back Button -->
+  <div class="header-section">
+    <a routerLink="/all-games" class="ui button">
+      <i class="left arrow icon"></i> Back
+    </a>
     <h1 class="game-title">{{ game?.name }}</h1>
   </div>
 
-  <!-- Hero Image -->
-  <div class="hero-image">
-    <img
-      *ngIf="game?.background_image"
-      [src]="game?.background_image"
-      alt="{{ game?.name }}"
-    />
-    <img
-      *ngIf="!game?.background_image"
-      src="https://res.cloudinary.com/adenike/image/upload/v1642002314/no-image_iah8ux.png"
-      alt="No image available"
-    />
-  </div>
-
-  <!-- Info Cards Grid -->
-  <div class="info-cards">
-    <!-- Name Card -->
-    <div class="info-card">
-      <div class="card-label">Name</div>
-      <div class="card-value">{{ game?.name }}</div>
+  <!-- Game Details Card -->
+  <div class="ui segment" *ngIf="game">
+    <!-- Hero Image -->
+    <div class="bg-img">
+      <img
+        *ngIf="game?.background_image"
+        [src]="game?.background_image"
+        [alt]="game?.name"
+      />
+      <img
+        *ngIf="!game?.background_image"
+        src="https://res.cloudinary.com/adenike/image/upload/v1642002314/no-image_iah8ux.png"
+        alt="No image available"
+      />
     </div>
 
-    <!-- Rating Card -->
-    <div class="info-card">
-      <div class="card-label">Rating</div>
-      <div class="card-value">
-        <span class="rating-value">{{ game?.metacritic }}</span>
-        <img src="assets/icons/star.svg" alt="Star" class="rating-star" />
+    <!-- Game Info Grid -->
+    <div class="game-info-grid">
+      <!-- Rating Card -->
+      <div class="info-card">
+        <p class="header-text primary">Rating</p>
+        <p class="body-text medium">
+          {{ game?.rating }}
+          <span class="rating-star"><i class="star icon"></i></span>
+        </p>
+      </div>
+
+      <!-- Release Date Card -->
+      <div class="info-card">
+        <p class="header-text secondary">Released</p>
+        <p class="body-text medium">
+          {{ game?.released | date: "dd MMM yyyy" }}
+        </p>
+      </div>
+
+      <!-- Review Count Card -->
+      <div class="info-card">
+        <p class="header-text primary">Reviews</p>
+        <p class="body-text medium">{{ game?.reviews_count }}</p>
+      </div>
+
+      <!-- Updated Card -->
+      <div class="info-card">
+        <p class="header-text secondary">Updated</p>
+        <p class="body-text medium">
+          {{ game?.updated | date: "dd MMM yyyy" }}
+        </p>
       </div>
     </div>
 
-    <!-- Released Card -->
-    <div class="info-card">
-      <div class="card-label">Released</div>
-      <div class="card-value">{{ game?.released | date: "mediumDate" }}</div>
+    <!-- Genres Section -->
+    <div class="genres-section">
+      <h2 class="genres-title">Genres</h2>
+      <div class="genres-container">
+        <span *ngIf="game?.genres?.length; else noGenres">
+          <span *ngFor="let genre of game?.genres" class="genre-item">
+            {{ genre?.name }}
+          </span>
+        </span>
+        <ng-template #noGenres>
+          <span class="no-genres-text">No genres info</span>
+        </ng-template>
+      </div>
     </div>
 
-    <!-- Reviews Card -->
-    <div class="info-card">
-      <div class="card-label">Reviews</div>
-      <div class="card-value">{{ game?.reviews_count }}</div>
+    <!-- Platforms Section -->
+    <div class="platforms-section">
+      <h2 class="platforms-title">Platforms</h2>
+      <div class="platforms-container">
+        @if (game?.parent_platforms?.length) {
+          <span
+            *ngFor="let platform of game?.parent_platforms"
+            class="platform-item"
+          >
+            {{ platform?.platform?.name }}
+          </span>
+        } @else {
+          <span class="no-platforms-text">No platform info</span>
+        }
+      </div>
     </div>
-  </div>
 
-  <!-- Genres Section -->
-  <section class="section">
-    <h2 class="section-title">Genres</h2>
-    <div *ngIf="game?.genres?.length; else noGenres" class="pills-container">
-      <span *ngFor="let genre of game?.genres" class="pill">{{
-        genre?.name
-      }}</span>
+    <!-- Ratings -->
+    <div class="rating-section" *ngIf="game?.ratings?.length">
+      <h2 class="rating-title">Ratings</h2>
+      <div class="rating-grid">
+        <div
+          *ngFor="let rating of game?.ratings; let last = last"
+          class="rating-row-container"
+          [style.--rating-color]="getRatingColor(rating?.title)"
+        >
+          <div class="rating-label-wrapper">
+            <span class="rating-label-text">
+              {{ rating?.title }}
+            </span>
+          </div>
+
+          <!-- Progress Bar with Percentage -->
+          <div class="rating-bar-container">
+            <div
+              class="rating-bar-fill"
+              [style.--percent]="getRatingPercentage(rating) + '%'"
+            >
+              <span
+                class="rating-percentage-text"
+                *ngIf="getRatingPercentage(rating) > 15"
+              >
+                {{ getRatingPercentage(rating) }}%
+              </span>
+            </div>
+            <span
+              class="rating-percentage-absolute"
+              *ngIf="getRatingPercentage(rating) <= 15"
+            >
+              {{ getRatingPercentage(rating) }}%
+            </span>
+          </div>
+
+          <div class="rating-count-wrapper">
+            <span class="rating-count-text">
+              {{ rating?.count }}
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
-    <ng-template #noGenres>
-      <div class="empty-state">No genres available</div>
-    </ng-template>
-  </section>
 
-  <!-- Platforms Section -->
-  <section class="section">
-    <h2 class="section-title">Platforms</h2>
-    <div
-      *ngIf="game?.parent_platforms?.length; else noPlatforms"
-      class="platforms"
+    <!-- Tags -->
+    <div class="tags-section">
+      <h2 class="tags-title">Tags</h2>
+      <div class="tags-container">
+        <span
+          *ngFor="let tag of game?.tags?.slice(0, 20) || []"
+          class="tag-item"
+          (mouseenter)="onTagHover($event, true)"
+          (mouseleave)="onTagHover($event, false)"
+        >
+          {{ tag.name }}
+        </span>
+        <span *ngIf="(game?.tags?.length || 0) > 20" class="tags-more-text">
+          +{{ (game?.tags?.length || 0) - 20 }} more
+        </span>
+      </div>
+    </div>
+
+    <!-- Screenshots Section with Expandable Gallery -->
+    <section
+      class="screenshots-section"
+      *ngIf="game?.short_screenshots?.length"
     >
-      <span
-        *ngFor="let platform of game?.parent_platforms"
-        class="platform-badge"
-      >
-        {{ platform?.platform?.name }}
-      </span>
-    </div>
-    <ng-template #noPlatforms>
-      <div class="empty-state">No platforms available</div>
-    </ng-template>
-  </section>
-
-  <!-- Rating Breakdown Section -->
-  <section class="section" *ngIf="game?.ratings?.length">
-    <h2 class="section-title">Rating Breakdown</h2>
-    <div class="rating-breakdown">
-      <div *ngFor="let rating of game?.ratings" class="rating-item">
-        <div class="rating-label">{{ rating?.title }}</div>
-        <div class="rating-bar-container">
+      <h2 class="screenshots-title">Screenshots</h2>
+      <div class="screenshots-grid">
+        <ng-container
+          *ngFor="let item of game?.short_screenshots; let i = index"
+        >
           <div
-            class="rating-bar"
-            [style.width]="
-              (rating?.count / (game?.ratings[0]?.count || 1)) * 100 + '%'
-            "
-          ></div>
-        </div>
-        <div class="rating-count">{{ rating?.count }}</div>
+            class="screenshot-item"
+            (click)="openScreenshot(i)"
+            [attr.data-index]="i"
+          >
+            <img
+              [src]="item?.image"
+              [alt]="'Screenshot of ' + game?.name"
+              loading="lazy"
+            />
+            <div class="screenshot-overlay">
+              <div class="expand-icon">⤢</div>
+            </div>
+          </div>
+        </ng-container>
       </div>
-    </div>
-  </section>
+    </section>
+  </div>
 
-  <!-- Tags Section -->
-  <section class="section" *ngIf="game?.tags?.length">
-    <h2 class="section-title">Tags & Features</h2>
-    <div class="tags-container">
-      <span
-        *ngFor="let tag of game?.tags?.slice(0, 20)"
-        class="tag"
-        [title]="tag?.name"
-      >
-        {{ tag?.name }}
-      </span>
-      <span *ngIf="game?.tags?.length > 20" class="tag-more"
-        >+{{ game?.tags?.length - 20 }}</span
-      >
-    </div>
-  </section>
-
-  <!-- Screenshots Section -->
-  <section class="section" *ngIf="game?.short_screenshots?.length">
-    <h2 class="section-title">Screenshots</h2>
-    <div class="screenshots-gallery">
-      <div
-        *ngFor="let screenshot of game?.short_screenshots"
-        class="screenshot-item"
-        (click)="openImagePreview(screenshot?.image)"
-      >
-        <img [src]="screenshot?.image" alt="Screenshot" />
-        <div class="screenshot-overlay">
-          <span class="expand-icon">⤢</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Image Preview Modal -->
+  <!-- Screenshot Modal/Lightbox with Swipe Support -->
   <div
-    *ngIf="selectedImage"
-    class="image-preview-modal"
-    (click)="closeImagePreview()"
+    class="screenshot-modal"
+    [class.active]="isModalOpen"
+    *ngIf="isModalOpen"
   >
-    <div class="modal-content" (click)="$event.stopPropagation()">
-      <img [src]="selectedImage" alt="Preview" class="preview-image" />
-      <button class="close-button" (click)="closeImagePreview()">✕</button>
+    <!-- Modal Overlay (Close on Click) -->
+    <div class="modal-overlay" (click)="closeModal()"></div>
+
+    <!-- Modal Content -->
+    <div class="modal-content">
+      <!-- Close Button (Above image) -->
+      <button
+        class="modal-close-btn"
+        (click)="closeModal()"
+        aria-label="Close modal"
+      >
+        &times;
+      </button>
+
+      <!-- Main Image Container with Smooth Transitions -->
+      <div class="modal-image-container">
+        <img
+          *ngIf="game?.short_screenshots?.[selectedScreenshotIndex]"
+          [src]="game.short_screenshots[selectedScreenshotIndex].image"
+          [alt]="'Screenshot ' + (selectedScreenshotIndex + 1)"
+          class="modal-image"
+          [class.transitioning]="isTransitioning"
+        />
+      </div>
+
+      <!-- Image Counter -->
+      <div class="modal-counter" *ngIf="game?.short_screenshots?.length > 1">
+        {{ selectedScreenshotIndex + 1 }} /
+        {{ game?.short_screenshots?.length }}
+      </div>
+
+      <!-- Thumbnail Strip -->
+      <div class="modal-thumbnails" *ngIf="game?.short_screenshots?.length > 1">
+        <div
+          *ngFor="let item of game?.short_screenshots; let i = index"
+          class="thumbnail-item"
+          [class.active]="i === selectedScreenshotIndex"
+          (click)="selectedScreenshotIndex = i"
+        >
+          <img [src]="item?.image" [alt]="'Thumbnail ' + (i + 1)" />
+        </div>
+      </div>
     </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state-container" *ngIf="!game">
+    <h2 class="empty-state-title">No game selected</h2>
+    <p class="empty-state-text">
+      Please select a game from the list to view details
+    </p>
+    <a routerLink="/all-games" class="ui primary button empty-state-button">
+      Go to Games List
+    </a>
   </div>
 </div>
-
-<!--
-  <div class="slider">
-    <input type="radio" name="slider" title="slide1" checked="checked" class="slider__nav" />
-    <input type="radio" name="slider" title="slide2" class="slider__nav" />
-    <input type="radio" name="slider" title="slide3" class="slider__nav" />
-    <input type="radio" name="slider" title="slide4" class="slider__nav" />
-    <div class="slider__inner">
-      <div class="slider__contents"><i class="slider__image fa fa-codepen"></i>
-        <h2 class="slider__caption">codepen</h2>
-        <p class="slider__txt">Lorem ipsum dolor sit amet, consectetur adipisicing elit. At cupiditate omnis possimus
-          illo quos, corporis minima!</p>
-      </div>
-      <div class="slider__contents"><i class="slider__image fa fa-newspaper-o"></i>
-        <h2 class="slider__caption">newspaper-o</h2>
-        <p class="slider__txt">Lorem ipsum dolor sit amet, consectetur adipisicing elit. At cupiditate omnis possimus
-          illo quos, corporis minima!</p>
-      </div>
-      <div class="slider__contents"><i class="slider__image fa fa-television"></i>
-        <h2 class="slider__caption">television</h2>
-        <p class="slider__txt">Lorem ipsum dolor sit amet, consectetur adipisicing elit. At cupiditate omnis possimus
-          illo quos, corporis minima!</p>
-      </div>
-      <div class="slider__contents"><i class="slider__image fa fa-diamond"></i>
-        <h2 class="slider__caption">diamond</h2>
-        <p class="slider__txt">Lorem ipsum dolor sit amet, consectetur adipisicing elit. At cupiditate omnis possimus
-          illo quos, corporis minima!</p>
-      </div>
-    </div>
-  </div>
-  -->
-<!-- <app-slider [images]="game?.short_screenshots"></app-slider>
-  <div class="slider">
-    <ng-container *ngFor="let item of game?.short_screenshots">
-      <input type="radio" name="slider" title="slide1" checked="checked" class="slider__nav" />
-    </ng-container>
-    <div class="slider__inner">
-      <ng-container *ngFor="let item of game?.short_screenshots">
-        <div class="slider__contents">
-          <img [src]="item?.image" alt="image" />
-        </div>
-      </ng-container>
-    </div>
-  </div>
- -->
