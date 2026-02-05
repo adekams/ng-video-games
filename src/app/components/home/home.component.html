@@ -1,6 +1,5 @@
 <div class="ui container">
   <app-searchbar [showSearch]="true"></app-searchbar>
-  <!-- Controls Section -->
   <div
     class="ui basic segment"
     style="
@@ -11,23 +10,29 @@
       flex-wrap: wrap;
     "
   >
-    <!-- Sort By Dropdown -->
     <div class="custom-select" style="flex: 1; min-width: 200px">
       <select
         [ngModel]="selectedSortOption()"
         (ngModelChange)="onSortOptionChange($event)"
         title="Sort games by"
       >
-        <option [ngValue]="option" *ngFor="let option of sortOptions">
-          {{ option.name }}
-        </option>
+        @for (option of SORT_OPTIONS; track $index) {
+          <option [ngValue]="option">
+            {{ option.name }}
+          </option>
+        }
       </select>
     </div>
 
-    <!-- Sort Order Toggle -->
     <div
       class="ui basic segment"
-      style="padding: 0; display: flex; gap: 10px; align-items: center"
+      style="
+        padding: 0;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-top: 0;
+      "
     >
       <button
         class="ui button"
@@ -56,95 +61,104 @@
     [ngClass]="{ loading: pending() }"
     style="background: transparent !important"
   >
-    <!-- Games Grid (displays immediately after fetch) -->
     <div class="ui four doubling cards">
-      <ng-container *ngFor="let game of games(); track $index">
-        <div
-          class="ui card"
-          (click)="goToItem(game)"
-          [attr.aria-label]="'View ' + game?.name"
-        >
-          <div class="image">
-            <img
-              *ngIf="game?.background_image"
-              [src]="game?.background_image"
-              [alt]="game?.name"
-              loading="lazy"
-            />
-            <img
-              *ngIf="!game?.background_image"
-              src="https://res.cloudinary.com/adenike/image/upload/v1642002314/no-image_iah8ux.png"
-              alt="No image available"
-              loading="lazy"
-            />
-          </div>
-          <div class="content">
-            <div class="header primary-color">{{ game?.name }}</div>
-            <div class="platforms">
-              @if (game?.parent_platforms?.length) {
-                @for (
-                  item of game?.parent_platforms;
-                  let last = $last;
-                  track $index
-                ) {
-                  <span>
-                    <img
-                      class="game-platform"
-                      src="assets/images/platforms/{{
-                        convertPlatformNametoLowercase(item?.platform?.name)
-                      }}.svg"
-                      [alt]="item?.platform?.name"
-                      title="{{ item?.platform?.name }}"
-                    />
-                  </span>
+      @for (game of games(); track $index) {
+        <ng-container>
+          <button
+            class="ui card"
+            (click)="goToItem(game)"
+            [attr.aria-label]="'View ' + game?.name"
+          >
+            <div class="image">
+              @if (game?.background_image) {
+                <img
+                  [src]="game?.background_image"
+                  [alt]="game?.name"
+                  loading="lazy"
+                />
+              } @else {
+                <img
+                  src="https://res.cloudinary.com/adenike/image/upload/v1642002314/no-image_iah8ux.png"
+                  alt="No image available"
+                  loading="lazy"
+                />
+              }
+            </div>
+            <div class="content">
+              <div class="header primary-color">{{ game?.name }}</div>
+              <div class="platforms">
+                @if (game?.parent_platforms?.length) {
+                  @for (
+                    item of game?.parent_platforms;
+                    let last = $last;
+                    track $index
+                  ) {
+                    <span>
+                      <img
+                        class="game-platform"
+                        src="assets/images/platforms/{{
+                          convertPlatformNametoLowercase(item?.platform?.name)
+                        }}.svg"
+                        [alt]="item?.platform?.name"
+                        title="{{ item?.platform?.name }}"
+                      />
+                    </span>
+                  }
                 }
-              }
+              </div>
+              <div style="margin-top: 12px; font-size: 13px; opacity: 0.8">
+                @if (game && game.ratings && game.ratings.length) {
+                  <img
+                    class="review-star"
+                    src="assets/icons/star.svg"
+                    alt="review-star"
+                  />
+                  {{ game.ratings[0].count || 0 }} reviews
+                }
+              </div>
             </div>
-            <div style="margin-top: 12px; font-size: 13px; opacity: 0.8">
-              @if (game && game.ratings && game.ratings.length) {
-                <img class="review-star" src="assets/icons/star.svg" />
-                {{ game.ratings[0].count || 0 }} reviews
-              }
-            </div>
-          </div>
-        </div>
-      </ng-container>
+          </button>
+        </ng-container>
+      }
     </div>
 
-    <!-- Empty State (only show when no games loaded and not loading) -->
-    <div
-      *ngIf="shouldShowEmptyState()"
-      style="text-align: center; padding: 40px"
-    >
-      <h3>No games found</h3>
-      <p>Try adjusting your search or sorting options</p>
-    </div>
+    @if (shouldShowEmptyState()) {
+      <div style="text-align: center; padding: 40px">
+        <h3>No games found</h3>
+        <p>Try adjusting your search or sorting options</p>
+      </div>
+    }
 
-    <!-- Infinite Scroll Trigger Element (visible but minimal) -->
+    <!-- Infinite Scroll Trigger Element (always present for observer) -->
     <div
-      *ngIf="hasMoreGames() && gameCount() > 0"
       #scrollTrigger
       style="height: 20px; margin-top: 20px"
       aria-hidden="true"
     ></div>
 
-    <!-- Loading Indicator for Additional Games (only on scroll, not initial) -->
+    <!-- End of List Message -->
+    @if (shouldShowEndMessage()) {
+      <div
+        style="
+          text-align: center;
+          padding: 20px;
+          opacity: 0.6;
+          margin-top: 20px;
+        "
+      >
+        <p style="font-size: 14px">All games loaded</p>
+      </div>
+    }
+  </div>
+
+  @if (pending() && gameCount() > 0) {
     <div
-      *ngIf="pending() && gameCount() > 0"
-      style="text-align: center; padding: 20px; margin-top: 20px"
+      style="text-align: center; padding: 20px; margin-top: 20px; opacity: 0.6"
     >
-      <div class="ui active loader"></div>
+      <div class="ui active spinner"></div>
       <p style="margin-top: 10px; font-size: 14px; opacity: 0.8">
         Loading more games...
       </p>
     </div>
-
-    <!-- End of List Message -->
-    <div
-      *ngIf="shouldShowEndMessage()"
-      style="text-align: center; padding: 20px; opacity: 0.6; margin-top: 20px"
-    >
-      <p style="font-size: 14px">✓ All games loaded</p>
-    </div>
-  </div>
+  }
 </div>
