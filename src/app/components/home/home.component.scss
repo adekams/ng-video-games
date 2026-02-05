@@ -14,7 +14,7 @@ $text-muted: #7a8090;
   height: 20px;
   vertical-align: bottom;
 }
-// ===== SEMANTIC UI OVERRIDES =====
+//SEMANTIC UI OVERRIDES
 
 .ui.container {
   max-width: 1400px !important;
@@ -28,7 +28,7 @@ $text-muted: #7a8090;
   box-shadow: none !important;
 }
 
-// ===== PREMIUM CARDS =====
+//CARDS
 
 .ui.cards > .card {
   background: linear-gradient(
@@ -145,7 +145,7 @@ $text-muted: #7a8090;
   flex: 0 0 auto !important;
 }
 
-// ===== GAME METADATA =====
+//GAME METADATA
 
 i.icon {
   color: $text-secondary !important;
@@ -188,7 +188,7 @@ i.icon {
   animation: fadeIn 0.5s ease-out;
 }
 
-// ===== PREMIUM CONTROLS =====
+//CONTROLS
 
 .ui.button {
   background: #ffffff !important;
@@ -251,7 +251,7 @@ i.icon {
   }
 }
 
-// ===== FILTERS & SORTING =====
+//FILTERS & SORTING
 
 .custom-select {
   position: relative;
@@ -296,71 +296,44 @@ select {
   }
 }
 
-// ===== PAGINATION =====
+.loader-bottom {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 20px;
+  position: relative;
+  z-index: 999;
+}
 
-.ngx-pagination {
-  display: flex !important;
-  list-style: none !important;
-  padding: 24px 0 !important;
-  margin: 0 !important;
-  gap: 8px !important;
-  justify-content: center !important;
-  flex-wrap: wrap !important;
+.spinner.small {
+  width: 24px;
+  height: 24px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top: 2px solid #ff6b6b;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
 
-  li {
-    a,
-    span {
-      display: inline-flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      min-width: 40px !important;
-      height: 40px !important;
-      padding: 0 12px !important;
-      background: rgba(255, 255, 255, 0.05) !important;
-      color: $text-secondary !important;
-      border: 1px solid $border-color !important;
-      border-radius: 8px !important;
-      cursor: pointer !important;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-      font-size: 14px !important;
-      font-weight: 600 !important;
-
-      &:hover {
-        color: $secondary !important;
-        background: rgba(78, 205, 196, 0.1) !important;
-        border-color: $secondary !important;
-        transform: translateY(-2px) !important;
-      }
-    }
-
-    &.current span {
-      background: linear-gradient(135deg, $primary, $primary-dark) !important;
-      color: #ffffff !important;
-      border-color: $primary !important;
-      box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3) !important;
-    }
-
-    &.disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
-
-    &.pagination-previous.disabled,
-    &.pagination-next.disabled {
-      a,
-      span {
-        cursor: not-allowed;
-      }
-    }
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }
 
-// ===== RESPONSIVE =====
+//RESPONSIVE
 
 @media (max-width: 768px) {
   .ui.four.doubling.cards {
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important;
     gap: 16px !important;
+  }
+
+  .ui.cards {
+    display: grid;
   }
 
   .ui.cards > .card {

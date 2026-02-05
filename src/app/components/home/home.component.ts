@@ -1,18 +1,19 @@
 import {
   Component,
   OnInit,
-  signal,
-  computed,
   AfterViewInit,
   ViewChild,
   ElementRef,
+  inject,
+  signal,
+  computed,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Params, Router, RouterModule } from '@angular/router';
-import { APIResponse, Game } from 'src/app/models/app-filter/app-filter';
+import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { HttpService } from '../../services/http.service';
 import { SearchbarComponent } from '../searchbar/searchbar.component';
+import { Game } from 'src/app/models/app-filter/app-filter';
 
 interface SortOption {
   name: string;
@@ -27,10 +28,15 @@ interface SortOption {
   styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent implements OnInit, AfterViewInit {
-  @ViewChild('scrollTrigger') scrollTrigger!: ElementRef;
+  private readonly http: HttpService = inject(HttpService);
+  private readonly router: Router = inject(Router);
+  private readonly activatedRoute: ActivatedRoute = inject(ActivatedRoute);
+
+  @ViewChild('scrollTrigger', { static: false })
+  private scrollTrigger!: ElementRef<HTMLDivElement>;
 
   // Constants
-  private readonly SORT_OPTIONS: SortOption[] = [
+  readonly SORT_OPTIONS: SortOption[] = [
     { name: 'Name', value: 'name' },
     { name: 'Released', value: '-released' },
     { name: 'Added', value: '-added' },
@@ -40,213 +46,150 @@ export class HomeComponent implements OnInit, AfterViewInit {
     { name: 'Metacritic', value: 'metacritic' },
   ];
 
-  readonly noImg =
-    'https://res.cloudinary.com/adenike/image/upload/v1642002314/no-image_iah8ux.png';
-  readonly sortOptions = this.SORT_OPTIONS;
+  // State Signals
+  readonly sortIndex = signal<number>(0);
+  readonly sortOrder = signal<'asc' | 'desc'>('desc');
+  readonly searchQuery = signal<string | undefined>(undefined);
+  readonly currentPage = signal<number>(1);
+  readonly isLoading = signal<boolean>(false);
 
-  // === STATE SIGNALS ===
-  // Primary state signals - these control the data fetching
-  private readonly selectedSortOptionIndex = signal(0); // Index into SORT_OPTIONS
-  private readonly sortOrder = signal<'asc' | 'desc'>('desc');
-  private readonly searchQuery = signal<string | undefined>(undefined);
-  private readonly currentPage = signal(1);
-  private readonly isLoading = signal(false);
-
-  // Data signals
-  private readonly allGames = signal<Game[]>([]);
-  readonly hasMoreGames = signal(true);
-
-  // === COMPUTED SIGNALS ===
-  // Derived state - read-only, computed from primary signals
-  readonly selectedSortOption = computed(
-    () => this.SORT_OPTIONS[this.selectedSortOptionIndex()],
+  // Computed Signals
+  readonly selectedSortOption = computed<SortOption>(
+    () => this.SORT_OPTIONS[this.sortIndex()],
   );
-  readonly sortOrderValue = computed(() => this.sortOrder());
-  readonly games = computed(() => this.allGames());
-  readonly pending = computed(() => this.isLoading());
-  readonly gameCount = computed(() => this.allGames().length);
-  readonly shouldShowEndMessage = computed(
-    () => !this.hasMoreGames() && this.gameCount() > 0,
-  );
-  readonly shouldShowEmptyState = computed(
+  readonly sortOrderValue = computed<'asc' | 'desc'>(() => this.sortOrder());
+  readonly sortParam = computed<string>(() => this.buildSortParam());
+
+  // Data Signals (Reactive API)
+  readonly games = signal<Game[]>([]);
+  readonly hasMore = signal<boolean>(true);
+
+  readonly gameCount = computed<number>(() => this.games().length);
+  readonly pending = computed<boolean>(() => this.isLoading());
+  readonly shouldShowEmptyState = computed<boolean>(
     () => this.gameCount() === 0 && !this.isLoading(),
   );
-
-  // === INITIALIZATION FLAG ===
-  private isInitialized = false;
-
-  constructor(
-    private readonly http: HttpService,
-    private readonly activatedRoute: ActivatedRoute,
-    private readonly router: Router,
-  ) {}
+  readonly shouldShowEndMessage = computed<boolean>(
+    () => !this.hasMore() && this.gameCount() > 0,
+  );
 
   ngOnInit(): void {
-    // Listen to route param changes for search queries
-    this.activatedRoute.params.subscribe((params: Params) => {
-      if (params['game-search']) {
-        this.searchQuery.set(params['game-search']);
-      } else {
-        this.searchQuery.set(undefined);
-      }
-      this.resetAndLoadGames();
+    this.activatedRoute.params.subscribe((params) => {
+      const search = params['game-search']
+        ? decodeURIComponent(params['game-search'])
+        : undefined;
+      this.searchQuery.set(search);
+      this.currentPage.set(1);
+      this.games.set([]);
     });
 
-    // Mark as initialized and trigger initial load
-    this.isInitialized = true;
-    this.loadMoreGames();
+    if (!this.searchQuery()) {
+      this.resetGames();
+    }
   }
 
   ngAfterViewInit(): void {
     this.setupIntersectionObserver();
   }
 
-  /**
-   * Reset pagination and load the first page of games
-   */
-  private resetAndLoadGames(): void {
-    this.allGames.set([]);
-    this.currentPage.set(1);
-    this.hasMoreGames.set(true);
-    this.loadMoreGames();
+  // Sort & Order
+  onSortOptionChange(option: SortOption): void {
+    const index = this.SORT_OPTIONS.findIndex((o) => o.value === option.value);
+    if (index !== -1 && index !== this.sortIndex()) {
+      this.sortIndex.set(index);
+      this.resetGames();
+    }
   }
 
-  /**
-   * Load the next page of games and append to existing list
-   */
-  loadMoreGames(): void {
-    // Guard 1: Already loading
-    if (this.isLoading()) {
-      return;
+  onSortResults(order: 'asc' | 'desc'): void {
+    if (order !== this.sortOrder()) {
+      this.sortOrder.set(order);
+      this.resetGames();
     }
+  }
 
-    // Guard 2: No more games available
-    if (!this.hasMoreGames()) {
-      return;
-    }
+  private resetGames(): void {
+    this.currentPage.set(1);
+    this.games.set([]);
+    this.hasMore.set(true);
 
-    // Guard 3: Not initialized yet
-    if (!this.isInitialized) {
+    this.fetchGames();
+  }
+
+  // Fetch the next page of games if needed -
+
+  private fetchGames(): void {
+    if (this.isLoading() || !this.hasMore()) {
       return;
     }
 
     this.isLoading.set(true);
-    const pageToLoad = this.currentPage();
-    const orderParam = this.buildSortParam();
-    const search = this.searchQuery();
 
-    this.http.getGames(orderParam, pageToLoad, search, 100).subscribe({
-      next: (response: APIResponse<Game>) => {
-        const newGames = response.results || [];
-        const existingGames = this.allGames();
+    const search = this.searchQuery()?.trim();
 
-        // Append new games to the list
-        this.allGames.set([...existingGames, ...newGames]);
+    this.http.getGames(this.sortParam(), this.currentPage(), search).subscribe({
+      next: (result) => {
+        const newGames: Game[] = result.results ?? [];
+        this.games.set([...this.games(), ...newGames]);
 
-        // Determine if more games are available
-        const totalLoaded = this.allGames().length;
-        const totalAvailable = response.count || 0;
-        const hasMore = newGames.length > 0 && totalLoaded < totalAvailable;
+        const totalLoaded = this.games().length;
+        const totalAvailable = result.count ?? 0;
+        this.hasMore.set(totalLoaded < totalAvailable);
 
-        this.hasMoreGames.set(hasMore);
-        this.currentPage.set(pageToLoad + 1);
+        // Increment page
+        this.currentPage.set(this.currentPage() + 1);
+
         this.isLoading.set(false);
-
-        console.log(
-          `[Games Loaded] Page: ${pageToLoad}, New: ${newGames.length}, Total: ${totalLoaded}/${totalAvailable}`,
-        );
       },
-      error: (error: unknown) => {
-        console.error('[Games Load Error]', error);
+      error: () => {
         this.isLoading.set(false);
+        this.hasMore.set(false);
       },
     });
   }
 
-  /**
-   * Handle sort option selection from dropdown
-   */
-  onSortOptionChange(option: SortOption): void {
-    const index = this.SORT_OPTIONS.findIndex(
-      (opt) => opt.value === option.value,
-    );
-    if (index !== -1 && index !== this.selectedSortOptionIndex()) {
-      this.selectedSortOptionIndex.set(index);
-      this.resetAndLoadGames();
-    }
-  }
-
-  /**
-   * Handle sort order toggle (asc/desc)
-   */
-  onSortResults(order: 'asc' | 'desc'): void {
-    if (order !== this.sortOrder()) {
-      this.sortOrder.set(order);
-      this.resetAndLoadGames();
-    }
-  }
-
-  /**
-   * Build the sort parameter with order prefix
-   */
   private buildSortParam(): string {
     const sortValue = this.selectedSortOption().value;
     const order = this.sortOrder();
 
-    if (order === 'asc') {
-      return sortValue.startsWith('-') ? sortValue.substring(1) : sortValue;
-    } else {
-      return sortValue.startsWith('-') ? sortValue : `-${sortValue}`;
-    }
+    return order === 'asc'
+      ? sortValue.startsWith('-')
+        ? sortValue.substring(1)
+        : sortValue
+      : sortValue.startsWith('-')
+        ? sortValue
+        : `-${sortValue}`;
   }
 
-  /**
-   * Navigate to game detail page
-   */
+  // Navigation
   goToItem(item: Game): void {
     if (typeof globalThis !== 'undefined' && globalThis.localStorage) {
       globalThis.localStorage.setItem('game', JSON.stringify(item));
     }
-    this.router.navigateByUrl('detail');
+    void this.router.navigate(['detail'], { state: { game: item } });
   }
 
-  /**
-   * Convert platform name to lowercase for asset lookup
-   */
-  convertPlatformNametoLowercase(name: string | undefined): string {
+  convertPlatformNametoLowercase(name?: string): string {
     return name?.toLowerCase() ?? '';
   }
 
-  /**
-   * Setup intersection observer for infinite scroll
-   * Triggers loadMoreGames when scroll trigger comes into view
-   */
+  // Infinite Scroll
   private setupIntersectionObserver(): void {
-    if (typeof IntersectionObserver === 'undefined') {
-      console.warn('[Infinite Scroll] IntersectionObserver not supported');
+    if (
+      typeof IntersectionObserver === 'undefined' ||
+      !this.scrollTrigger?.nativeElement
+    )
       return;
-    }
 
     const observer = new IntersectionObserver(
       (entries) => {
-        // Only load if: trigger is intersecting, more games exist, and not already loading
-        if (
-          entries[0]?.isIntersecting &&
-          this.hasMoreGames() &&
-          !this.isLoading()
-        ) {
-          this.loadMoreGames();
+        if (entries[0].isIntersecting && this.hasMore() && !this.isLoading()) {
+          this.fetchGames();
         }
       },
-      {
-        threshold: 0.1,
-        rootMargin: '100px', // Start loading 100px before reaching bottom
-      },
+      { threshold: 0.1, rootMargin: '100px' },
     );
 
-    // Observe the scroll trigger element
-    if (this.scrollTrigger?.nativeElement) {
-      observer.observe(this.scrollTrigger.nativeElement);
-    }
+    observer.observe(this.scrollTrigger.nativeElement);
   }
 }
