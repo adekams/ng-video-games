@@ -10,8 +10,12 @@
     "experimentalDecorators": true,
     "moduleResolution": "node",
     "importHelpers": true,
-    "target": "es2015",
+    "target": "es2022",
+    "useDefineForClassFields": true,
     "module": "es2020",
-    "lib": ["es2018", "dom"]
+    "lib": ["es2022", "dom"],
+    "strict": true,
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true
   }
 }
