@@ -94,7 +94,7 @@ body {
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 255, 255, 0.2),
+    rgba(255, 255, 255, 0.1),
     transparent
   );
   border-color: transparent;
@@ -194,7 +194,6 @@ body {
 }
 
 .ui.cards {
-  gap: 20px;
   padding: 20px 0;
 }
 
@@ -258,31 +257,6 @@ textarea {
     outline: none;
     border-color: rgba(255, 107, 107, 0.5);
     box-shadow: 0 0 12px rgba(255, 107, 107, 0.15);
-  }
-}
-
-/* Pagination */
-.ngx-pagination {
-  li {
-    a,
-    span {
-      color: #ffffff;
-      background: transparent;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 6px;
-      transition: all 0.3s ease;
-
-      &:hover {
-        background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
-        border-color: rgba(255, 107, 107, 0.5);
-      }
-    }
-  }
-
-  li.active a {
-    background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
-    border-color: #ff6b6b;
-    color: #ffffff;
   }
 }
 
@@ -430,5 +404,11 @@ textarea {
 @media only screen and (min-width: 768px) and (max-width: 991px) {
   .ui.four.doubling.cards > .card {
     width: calc(50% - 3em);
+  }
+}
+
+@media only screen and (max-width: 767px) {
+  .ui.four.doubling.cards > .card {
+    width: calc(100% - 2em);
   }
 }

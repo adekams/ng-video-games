@@ -1,12 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { Component, Input, inject, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
@@ -17,27 +12,57 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
 })
 export class SearchbarComponent implements OnInit {
-  @Input() showSearch: boolean = false;
+  @Input() showSearch = false;
+
+  private router = inject(Router);
+  private activatedRoute = inject(ActivatedRoute);
+  private fb = inject(FormBuilder);
+
   searchForm: FormGroup;
-  constructor(
-    private router: Router,
-    private fb: FormBuilder,
-  ) {
-    this.searchForm = fb.group({
-      searchQuery: ['', Validators.required],
+  private isSettingFromRoute = false;
+
+  constructor() {
+    this.searchForm = this.fb.group({
+      searchQuery: [''],
     });
 
-    this.searchForm
-      .get('searchQuery')
-      .valueChanges.pipe(debounceTime(500), distinctUntilChanged())
-      .subscribe((i) => {
-        this.router.navigate(['search/', this.searchForm.value.searchQuery]);
-      });
+    const searchControl = this.searchForm.get('searchQuery');
+
+    if (searchControl) {
+      searchControl.valueChanges
+        .pipe(debounceTime(500), distinctUntilChanged())
+        .subscribe((value: string) => {
+          if (this.isSettingFromRoute) return;
+
+          const trimmed = value?.trim() ?? '';
+
+          // Only navigate if value differs from current route param
+          const currentParam =
+            this.activatedRoute.snapshot.params['game-search'] ?? '';
+          if (trimmed !== currentParam) {
+            const route = trimmed ? ['search', trimmed] : ['/'];
+            void this.router.navigate(route);
+          }
+        });
+    }
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.activatedRoute.params.subscribe((params) => {
+      const searchParam = params['game-search'] ?? '';
+
+      this.isSettingFromRoute = true;
+      this.searchForm.patchValue(
+        { searchQuery: searchParam },
+        { emitEvent: false },
+      );
+      this.isSettingFromRoute = false;
+    });
+  }
+
   onSubmit(form: FormGroup) {
-    console.log(form.value);
-    this.router.navigate(['search/', form.value.searchQuery]);
+    const value = form.value.searchQuery?.trim() ?? '';
+    const route = value ? ['search', value] : ['/'];
+    void this.router.navigate(route);
   }
 }

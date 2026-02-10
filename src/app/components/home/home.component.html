@@ -1,6 +1,5 @@
 <div class="ui container">
   <app-searchbar [showSearch]="true"></app-searchbar>
-  <!-- Controls Section -->
   <div
     class="ui basic segment"
     style="
@@ -11,27 +10,33 @@
       flex-wrap: wrap;
     "
   >
-    <!-- Sort By Dropdown -->
     <div class="custom-select" style="flex: 1; min-width: 200px">
       <select
-        [(ngModel)]="sortBy"
-        (change)="searchGames(sortBy.value, 5)"
+        [ngModel]="selectedSortOption()"
+        (ngModelChange)="onSortOptionChange($event)"
         title="Sort games by"
       >
-        <option [ngValue]="option" *ngFor="let option of sortOptions">
-          {{ option.name }}
-        </option>
+        @for (option of SORT_OPTIONS; track $index) {
+          <option [ngValue]="option">
+            {{ option.name }}
+          </option>
+        }
       </select>
     </div>
 
-    <!-- Sort Order Toggle -->
     <div
       class="ui basic segment"
-      style="padding: 0; display: flex; gap: 10px; align-items: center"
+      style="
+        padding: 0;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-top: 0;
+      "
     >
       <button
         class="ui button"
-        [class.active]="sortOrder === 'desc'"
+        [class.active]="sortOrderValue() === 'desc'"
         (click)="onSortResults('desc')"
         title="Sort descending"
       >
@@ -40,7 +45,7 @@
       </button>
       <button
         class="ui button"
-        [class.active]="sortOrder === 'asc'"
+        [class.active]="sortOrderValue() === 'asc'"
         (click)="onSortResults('asc')"
         title="Sort ascending"
       >
@@ -50,101 +55,110 @@
     </div>
   </div>
 
-  <!-- Games Loading Container -->
+  <!-- Games Container with Infinite Scroll -->
   <div
     class="ui basic segment"
-    [ngClass]="{ loading: pending }"
+    [ngClass]="{ loading: pending() }"
     style="background: transparent !important"
   >
     <div class="ui four doubling cards">
-      <ng-container
-        *ngFor="
-          let game of games
-            | paginate
-              : {
-                  itemsPerPage: 10,
-                  currentPage: currentPage,
-                  totalItems: totalItems,
+      @for (game of games(); track $index) {
+        <ng-container>
+          <button
+            class="ui card"
+            (click)="goToItem(game)"
+            [attr.aria-label]="'View ' + game?.name"
+          >
+            <div class="image">
+              @if (game?.background_image) {
+                <img
+                  [src]="game?.background_image"
+                  [alt]="game?.name"
+                  loading="lazy"
+                />
+              } @else {
+                <img
+                  src="https://res.cloudinary.com/adenike/image/upload/v1642002314/no-image_iah8ux.png"
+                  alt="No image available"
+                  loading="lazy"
+                />
+              }
+            </div>
+            <div class="content">
+              <div class="header primary-color">{{ game?.name }}</div>
+              <div class="platforms">
+                @if (game?.parent_platforms?.length) {
+                  @for (
+                    item of game?.parent_platforms;
+                    let last = $last;
+                    track $index
+                  ) {
+                    <span>
+                      <img
+                        class="game-platform"
+                        src="assets/images/platforms/{{
+                          convertPlatformNametoLowercase(item?.platform?.name)
+                        }}.svg"
+                        [alt]="item?.platform?.name"
+                        title="{{ item?.platform?.name }}"
+                      />
+                    </span>
+                  }
                 }
+              </div>
+              <div style="margin-top: 12px; font-size: 13px; opacity: 0.8">
+                @if (game && game.ratings && game.ratings.length) {
+                  <img
+                    class="review-star"
+                    src="assets/icons/star.svg"
+                    alt="review-star"
+                  />
+                  {{ game.ratings[0].count || 0 }} reviews
+                }
+              </div>
+            </div>
+          </button>
+        </ng-container>
+      }
+    </div>
+
+    @if (shouldShowEmptyState()) {
+      <div style="text-align: center; padding: 40px">
+        <h3>No games found</h3>
+        <p>Try adjusting your search or sorting options</p>
+      </div>
+    }
+
+    <!-- Infinite Scroll Trigger Element (always present for observer) -->
+    <div
+      #scrollTrigger
+      style="height: 20px; margin-top: 20px"
+      aria-hidden="true"
+    ></div>
+
+    <!-- End of List Message -->
+    @if (shouldShowEndMessage()) {
+      <div
+        style="
+          text-align: center;
+          padding: 20px;
+          opacity: 0.6;
+          margin-top: 20px;
         "
       >
-        <div
-          class="ui card"
-          (click)="goToItem(game)"
-          [attr.aria-label]="'View ' + game?.name"
-        >
-          <div class="image">
-            <img
-              *ngIf="game?.background_image"
-              [src]="game?.background_image"
-              [alt]="game?.name"
-              loading="lazy"
-            />
-            <img
-              *ngIf="!game?.background_image"
-              src="https://res.cloudinary.com/adenike/image/upload/v1642002314/no-image_iah8ux.png"
-              alt="No image available"
-              loading="lazy"
-            />
-          </div>
-          <div class="content">
-            <div class="header primary-color">{{ game?.name }}</div>
-            <div class="platforms">
-              @if (game?.parent_platforms?.length) {
-                @for (
-                  item of game?.parent_platforms;
-                  let last = $last;
-                  track $index
-                ) {
-                  <span>
-                    <img
-                      class="game-platform"
-                      src="assets/images/platforms/{{
-                        convertPlatformNametoLowercase(item?.platform?.name)
-                      }}.svg"
-                      [alt]="item?.platform?.name"
-                      title="{{ item?.platform?.name }}"
-                    />
-                  </span>
-                }
-              }
-            </div>
-            <div style="margin-top: 12px; font-size: 13px; opacity: 0.8">
-              @if (game && game.ratings && game.ratings.length) {
-                <img class="review-star" src="assets/icons/star.svg" />
-                {{ game.ratings[0].count || 0 }} reviews
-              }
-            </div>
-          </div>
-        </div>
-      </ng-container>
-    </div>
+        <p style="font-size: 14px">All games loaded</p>
+      </div>
+    }
+  </div>
 
-    <!-- Empty State -->
+  @if (pending() && gameCount() > 0) {
     <div
-      *ngIf="games.length === 0 && !pending"
-      style="text-align: center; padding: 40px"
+      style="text-align: center; padding: 20px; margin-top: 20px; opacity: 0.6"
     >
-      <h3>No games found</h3>
-      <p>Try adjusting your search or sorting options</p>
+      <div class="ui active spinner"></div>
+      <p style="margin-top: 10px; font-size: 14px; opacity: 0.8">
+        Loading more games...
+      </p>
     </div>
-  </div>
-
-  <!-- Pagination -->
-  <div class="ui segments">
-    <div class="ui basic segment right aligned">
-      <pagination-controls
-        (pageChange)="nextPage($event)"
-        [directionLinks]="true"
-        [autoHide]="true"
-        [responsive]="true"
-        previousLabel="Previous"
-        nextLabel="Next"
-        screenReaderPaginationLabel="Pagination"
-        screenReaderPageLabel="page"
-        screenReaderCurrentLabel="You're on page"
-      >
-      </pagination-controls>
-    </div>
-  </div>
+  }
 </div>

@@ -7,20 +7,20 @@ export interface Game {
   website: string;
   description: string;
   metacritic: number;
-  genres: Array<Genre>;
-  parent_platforms: Array<ParentPlatform>;
-  publishers: Array<Publishers>;
-  ratings: Array<Ratings>;
-  screenshots: Array<Screenshots>;
-  trailers: Array<Trailers>;
+  genres: Genre[];
+  parent_platforms: ParentPlatform[];
+  publishers: Publishers[];
+  ratings: Ratings[];
+  screenshots: Screenshots[];
+  trailers: Trailers[];
   reviews_count?: number;
   updated?: string;
-  short_screenshots?: Array<{ image: string }>;
-  tags?: Array<Tag>;
+  short_screenshots?: { image: string }[];
+  tags?: Tag[];
 }
 
 export interface APIResponse<T> {
-  results: Array<T>;
+  results: T[];
   count?: number;
   next?: string;
   previous?: string;
