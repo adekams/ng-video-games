@@ -36,13 +36,7 @@ npm install
 
 ### 3. Configure API Keys
 
-1. Copy the environment template:
-
-   ```bash
-   cp src/environments/environment.ts.example src/environments/environment.ts
-   ```
-
-2. Add your API keys to `src/environments/environment.ts`:
+1. Add your API keys to `src/environments/environment.ts`:
    - Get `RAPIDAPI_KEY` from [RapidAPI](https://rapidapi.com/api-sports/api/api-sports)
    - Get `RAWG_API_KEY` from [RAWG.io](https://rawg.io/apidocs)
 
@@ -55,7 +49,7 @@ npm install
    };
    ```
 
-**⚠️ Important**: Never commit `environment.ts` with real API keys. The file is in `.gitignore` for security.
+**⚠️ Important**: Never commit `environment.ts` with real API keys. The file can be in `.gitignore` for security.
 
 ## Development
 
