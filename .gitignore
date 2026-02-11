@@ -12,6 +12,7 @@
 
 # Angular build cache
 /.angular/cache
+build.log
 
 # profiling files
 chrome-profiler-events*.json
