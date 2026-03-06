@@ -5,8 +5,8 @@ const path = require('path');
 const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY || '';
 const RAWG_API_KEY = process.env.RAWG_API_KEY || '';
 
-// Create temporary environment file for production build
-const tempEnvPath = path.join(__dirname, '../src/environments/environment.prod.temp.ts');
+// Create environment file for production build
+const envProdPath = path.join(__dirname, '../src/environments/environment.prod.ts');
 
 const envContent = `export const environment = {
   production: true,
@@ -16,7 +16,7 @@ const envContent = `export const environment = {
 };
 `;
 
-fs.writeFileSync(tempEnvPath, envContent, 'utf-8');
+fs.writeFileSync(envProdPath, envContent, 'utf-8');
 
 console.log('✓ Environment configuration created for production build');
 console.log(`  - RAPIDAPI_KEY: ${RAPIDAPI_KEY ? '***' + RAPIDAPI_KEY.slice(-4) : '⚠️  NOT SET'}`);
