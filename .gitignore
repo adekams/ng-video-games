@@ -35,6 +35,7 @@ speed-measure-plugin*.json
 .env
 .env.local
 .env.*.local
+src/environments/environment.local.ts
 src/environments/environment.prod.temp.ts
 src/environments/environment.temp.ts
 !.vscode/settings.json

@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 
-// Get environment variables from Netlify (or local .env if developing)
+// Get environment variables from Netlify (or system env if developing)
 const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY || "";
 const RAWG_API_KEY = process.env.RAWG_API_KEY || "";
 

@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener, signal, computed } from '@angular/core';
+import { Component, HostListener, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
@@ -9,7 +9,7 @@ import { RouterModule } from '@angular/router';
   templateUrl: './game-detail.component.html',
   styleUrls: ['./game-detail.component.scss'],
 })
-export class GameDetailComponent implements OnInit {
+export class GameDetailComponent {
   game = signal(this.getGame());
   isModalOpen = signal(false);
   selectedScreenshotIndex = signal(0);
@@ -20,14 +20,12 @@ export class GameDetailComponent implements OnInit {
     console.log('game ', this.game());
   }
 
-  ngOnInit(): void {}
-
-  onTagHover(event: any, isEnter: boolean): void {
-    const element = event.target as any;
+  onTagHover(event: MouseEvent, isEnter: boolean): void {
+    const element = event.target as HTMLElement;
     if (isEnter) {
-      element.style.background = 'rgba(78, 205, 196, 0.3)';
+      element.style.backgroundColor = 'rgba(78, 205, 196, 0.3)';
     } else {
-      element.style.background = 'rgba(78, 205, 196, 0.15)';
+      element.style.backgroundColor = 'rgba(78, 205, 196, 0.15)';
     }
   }
 
@@ -101,14 +99,14 @@ export class GameDetailComponent implements OnInit {
   }
 
   // Rating Methods - Calculate Google Play style percentages
-  getRatingPercentage(rating: any): number {
+  getRatingPercentage(rating: { count?: number }): number {
     const game = this.game();
     if (!game?.ratings || !rating) return 0;
     const total = game.ratings.reduce(
-      (sum: number, r: any) => sum + (r.count || 0),
+      (sum: number, r: { count?: number }) => sum + (r.count || 0),
       0,
     );
-    return total > 0 ? Math.round((rating.count / total) * 100) : 0;
+    return total > 0 ? Math.round(((rating?.count || 0) / total) * 100) : 0;
   }
 
   getRatingColor(title: string): string {
