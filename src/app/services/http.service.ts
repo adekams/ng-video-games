@@ -52,6 +52,10 @@ export class HttpService {
     return { allGames, hasMoreGames, isLoading };
   }
 
+  getGameById(id: number) {
+    return this.http.get<Game>(`${env.API_URL}/games/${id}`);
+  }
+
   getGames(order: string, page: number, search?: string, pageSize = 100) {
     let params = new HttpParams()
       .set('ordering', order)

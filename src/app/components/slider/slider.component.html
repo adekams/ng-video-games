@@ -1,8 +1,10 @@
 <div class="container">
   <ul class="slides">
-    <ng-container *ngFor="let item of images; index as i">
-      <li id="{{i}}"><img [src]="item?.image" alt="image" /></li>
-    </ng-container>
+    @for (item of images; track item?.image) {
+      <li id="{{ $index }}">
+        <img [src]="item?.image" alt="image" loading="lazy" decoding="async" />
+      </li>
+    }
     <!-- <li id="slide2"><img src="https://cdn.rawgit.com/huijing/filerepo/gh-pages/lw2.jpg" alt="" /></li>
     <li id="slide3"><img src="https://cdn.rawgit.com/huijing/filerepo/gh-pages/lw3.jpg" alt="" /></li>
     <li id="slide4"><img src="https://cdn.rawgit.com/huijing/filerepo/gh-pages/lw4.jpg" alt="" /></li>
@@ -10,9 +12,13 @@
   </ul>
 
   <ul class="thumbnails">
-    <li *ngFor="let item of images; index as i">
-      <a routerLink="./" [fragment]="i"><img [src]="item?.image" /></a>
-    </li>
+    @for (item of images; track item?.image) {
+      <li>
+        <a routerLink="./" [fragment]="$index"
+          ><img alt="image" [src]="item?.image" loading="lazy" decoding="async"
+        /></a>
+      </li>
+    }
     <!-- <li>
       <a href="detail/#slide2"><img src="https://cdn.rawgit.com/huijing/filerepo/gh-pages/lw2.jpg" /></a>
     </li>

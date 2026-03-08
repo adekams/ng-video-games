@@ -4,260 +4,261 @@
     <a routerLink="/all-games" class="ui button">
       <i class="left arrow icon"></i> Back
     </a>
-    <h1 class="game-title">{{ game?.name }}</h1>
+    <h1 class="game-title">{{ game()?.name }}</h1>
   </div>
 
-  <!-- Game Details Card -->
-  @if (game()) {
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="loading-container">
+      <div class="ui active centered inline loader"></div>
+      <p class="loading-text">Loading game details…</p>
+    </div>
+  }
+
+  @if (game(); as g) {
     <div class="ui segment">
-    <!-- Hero Image -->
-    <div class="bg-img">
-      @if (game?.background_image) {
-        <img
-          [src]="game?.background_image"
-          [alt]="game?.name"
-        />
-      } @else {
-        <img
-          src="https://res.cloudinary.com/adenike/image/upload/v1642002314/no-image_iah8ux.png"
-          alt="No image available"
-        />
+      <!-- Hero Image-->
+      <div class="bg-img">
+        @if (g.background_image) {
+          <img
+            [src]="g.background_image"
+            [alt]="g.name"
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+          />
+        } @else {
+          <img
+            src="https://res.cloudinary.com/adenike/image/upload/v1642002314/no-image_iah8ux.png"
+            alt="No image available"
+          />
+        }
+      </div>
+
+      <!-- Info Grid -->
+      <div class="game-info-grid">
+        <div class="info-card">
+          <p class="header-text primary">Rating</p>
+          <p class="body-text medium">
+            {{ g.rating }}
+            <span class="rating-star"><i class="star icon"></i></span>
+          </p>
+        </div>
+
+        <div class="info-card">
+          <p class="header-text secondary">Released</p>
+          <p class="body-text medium">{{ g.released | date: "dd MMM yyyy" }}</p>
+        </div>
+
+        <div class="info-card">
+          <p class="header-text primary">Reviews</p>
+          <p class="body-text medium">{{ g.reviews_count }}</p>
+        </div>
+
+        <div class="info-card">
+          <p class="header-text secondary">Updated</p>
+          <p class="body-text medium">{{ g.updated | date: "dd MMM yyyy" }}</p>
+        </div>
+      </div>
+
+      <!-- Genres -->
+      <div class="genres-section">
+        <h2 class="genres-title">Genres</h2>
+        <div class="genres-container">
+          @if (g.genres?.length) {
+            @for (genre of g.genres; track genre.name) {
+              <span class="genre-item">{{ genre.name }}</span>
+            }
+          } @else {
+            <span class="no-genres-text">No genres info</span>
+          }
+        </div>
+      </div>
+
+      <!-- Platforms -->
+      <div class="platforms-section">
+        <h2 class="platforms-title">Platforms</h2>
+        <div class="platforms-container">
+          @if (g.parent_platforms?.length) {
+            @for (
+              platform of g.parent_platforms;
+              track platform.platform.name
+            ) {
+              <span class="platform-item">{{ platform.platform.name }}</span>
+            }
+          } @else {
+            <span class="no-platforms-text">No platform info</span>
+          }
+        </div>
+      </div>
+
+      <!-- Ratings -->
+      @if (g.ratings?.length) {
+        <div class="rating-section">
+          <h2 class="rating-title">Ratings</h2>
+          <div class="rating-grid">
+            @for (rating of g.ratings; track rating.id) {
+              <div
+                class="rating-row-container"
+                [style.--rating-color]="getRatingColor(rating.title)"
+              >
+                <div class="rating-label-wrapper">
+                  <span class="rating-label-text">{{ rating.title }}</span>
+                </div>
+
+                <div class="rating-bar-container">
+                  <div
+                    class="rating-bar-fill"
+                    [style.--percent]="getRatingPercentage(rating) + '%'"
+                  >
+                    @if (getRatingPercentage(rating) > 15) {
+                      <span class="rating-percentage-text"
+                        >{{ getRatingPercentage(rating) }}%</span
+                      >
+                    }
+                  </div>
+
+                  @if (getRatingPercentage(rating) <= 15) {
+                    <span class="rating-percentage-absolute"
+                      >{{ getRatingPercentage(rating) }}%</span
+                    >
+                  }
+                </div>
+
+                <div class="rating-count-wrapper">
+                  <span class="rating-count-text">{{ rating.count }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Tags -->
+      @if (g.tags?.length) {
+        <div class="tags-section">
+          <h2 class="tags-title">Tags</h2>
+          <div class="tags-container">
+            @for (tag of g.tags.slice(0, 20); track tag.id) {
+              <span
+                class="tag-item"
+                (mouseenter)="onTagHover($event, true)"
+                (mouseleave)="onTagHover($event, false)"
+                >{{ tag.name }}</span
+              >
+            }
+
+            @if (g.tags.length > 20) {
+              <span class="tags-more-text">+{{ g.tags.length - 20 }} more</span>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Screenshots -->
+      @if (g.short_screenshots?.length) {
+        <section class="screenshots-section">
+          <h2 class="screenshots-title">Screenshots</h2>
+          <div class="screenshots-grid">
+            @for (item of g.short_screenshots; track item.id) {
+              <button
+                class="screenshot-item"
+                (click)="openScreenshot($index)"
+                [attr.aria-label]="'Open screenshot ' + ($index + 1)"
+              >
+                <img
+                  [src]="item.image"
+                  [alt]="'Screenshot of ' + g.name"
+                  loading="lazy"
+                  decoding="async"
+                />
+                <div class="screenshot-overlay">
+                  <div class="expand-icon">⤢</div>
+                </div>
+              </button>
+            }
+          </div>
+        </section>
       }
     </div>
 
-    <!-- Game Info Grid -->
-    <div class="game-info-grid">
-      <!-- Rating Card -->
-      <div class="info-card">
-        <p class="header-text primary">Rating</p>
-        <p class="body-text medium">
-          {{ game?.rating }}
-          <span class="rating-star"><i class="star icon"></i></span>
-        </p>
-      </div>
+    <!-- Modal -->
+    @if (isModalOpen()) {
+      <div class="screenshot-modal active">
+        <button
+          class="modal-overlay"
+          (click)="closeModal()"
+          (keydown.enter)="closeModal()"
+          (keydown.space)="closeModal()"
+          aria-label="Close modal"
+        ></button>
 
-      <!-- Release Date Card -->
-      <div class="info-card">
-        <p class="header-text secondary">Released</p>
-        <p class="body-text medium">
-          {{ game?.released | date: "dd MMM yyyy" }}
-        </p>
-      </div>
+        <div class="modal-content">
+          <button
+            class="modal-close-btn"
+            (click)="closeModal()"
+            aria-label="Close modal"
+          >
+            &times;
+          </button>
 
-      <!-- Review Count Card -->
-      <div class="info-card">
-        <p class="header-text primary">Reviews</p>
-        <p class="body-text medium">{{ game?.reviews_count }}</p>
-      </div>
+          <div class="modal-image-container">
+            @if (
+              g.short_screenshots?.[selectedScreenshotIndex()];
+              as screenshot
+            ) {
+              <img
+                [src]="screenshot.image"
+                [alt]="'Screenshot ' + (selectedScreenshotIndex() + 1)"
+                class="modal-image"
+                [class.transitioning]="isTransitioning()"
+                decoding="async"
+              />
+            }
+          </div>
 
-      <!-- Updated Card -->
-      <div class="info-card">
-        <p class="header-text secondary">Updated</p>
-        <p class="body-text medium">
-          {{ game?.updated | date: "dd MMM yyyy" }}
-        </p>
-      </div>
-    </div>
+          @if ((g.short_screenshots?.length ?? 0) > 1) {
+            <div class="modal-counter">
+              {{ selectedScreenshotIndex() + 1 }} /
+              {{ g.short_screenshots?.length }}
+            </div>
 
-    <!-- Genres Section -->
-    <div class="genres-section">
-      <h2 class="genres-title">Genres</h2>
-      <div class="genres-container">
-        @if (game?.genres?.length) {
-          @for (genre of game?.genres; track genre?.id) {
-            <span class="genre-item">
-              {{ genre?.name }}
-            </span>
-          }
-        } @else {
-          <span class="no-genres-text">No genres info</span>
-        }
-      </div>
-    </div>
-
-    <!-- Platforms Section -->
-    <div class="platforms-section">
-      <h2 class="platforms-title">Platforms</h2>
-      <div class="platforms-container">
-        @if (game?.parent_platforms?.length) {
-          @for (platform of game?.parent_platforms; track platform?.platform?.id) {
-            <span class="platform-item">
-              {{ platform?.platform?.name }}
-            </span>
-          }
-        } @else {
-          <span class="no-platforms-text">No platform info</span>
-        }
-      </div>
-    </div>
-
-    <!-- Ratings -->
-    @if (game?.ratings?.length) {
-      <div class="rating-section">
-        <h2 class="rating-title">Ratings</h2>
-        <div class="rating-grid">
-          @for (rating of game?.ratings; track rating?.id) {
-            <div
-              class="rating-row-container"
-              [style.--rating-color]="getRatingColor(rating?.title)"
-            >
-              <div class="rating-label-wrapper">
-                <span class="rating-label-text">
-                  {{ rating?.title }}
-                </span>
-              </div>
-
-              <!-- Progress Bar with Percentage -->
-              <div class="rating-bar-container">
-                <div
-                  class="rating-bar-fill"
-                  [style.--percent]="getRatingPercentage(rating) + '%'"
+            <div class="modal-thumbnails">
+              @for (item of g.short_screenshots; track item.id) {
+                <button
+                  class="thumbnail-item"
+                  [class.active]="$index === selectedScreenshotIndex()"
+                  (click)="selectScreenshot($index)"
+                  [attr.aria-label]="'Go to screenshot ' + ($index + 1)"
+                  [attr.aria-current]="
+                    $index === selectedScreenshotIndex() ? 'true' : 'false'
+                  "
                 >
-                  @if (getRatingPercentage(rating) > 15) {
-                    <span class="rating-percentage-text">
-                      {{ getRatingPercentage(rating) }}%
-                    </span>
-                  }
-                </div>
-                @if (getRatingPercentage(rating) <= 15) {
-                  <span class="rating-percentage-absolute">
-                    {{ getRatingPercentage(rating) }}%
-                  </span>
-                }
-              </div>
-
-              <div class="rating-count-wrapper">
-                <span class="rating-count-text">
-                  {{ rating?.count }}
-                </span>
-              </div>
+                  <img
+                    [src]="item.image"
+                    [alt]="'Thumbnail ' + ($index + 1)"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </button>
+              }
             </div>
           }
         </div>
       </div>
     }
-
-    <!-- Tags -->
-    <div class="tags-section">
-      <h2 class="tags-title">Tags</h2>
-      <div class="tags-container">
-        @for (tag of game?.tags?.slice(0, 20) || []; track tag?.id) {
-          <span
-            class="tag-item"
-            (mouseenter)="onTagHover($event, true)"
-            (mouseleave)="onTagHover($event, false)"
-          >
-            {{ tag.name }}
-          </span>
-        }
-        @if ((game?.tags?.length || 0) > 20) {
-          <span class="tags-more-text">
-            +{{ (game?.tags?.length || 0) - 20 }} more
-          </span>
-        }
-      </div>
-    </div>
-
-    <!-- Screenshots Section with Expandable Gallery -->
-    @if (game?.short_screenshots?.length) {
-      <section class="screenshots-section">
-        <h2 class="screenshots-title">Screenshots</h2>
-        <div class="screenshots-grid">
-          @for (item of game?.short_screenshots; track item?.id; let i = $index) {
-            <button
-              class="screenshot-item"
-              (click)="openScreenshot(i)"
-              [attr.data-index]="i"
-              [attr.aria-label]="'Open screenshot ' + (i + 1)"
-            >
-              <img
-                [src]="item?.image"
-                [alt]="'Screenshot of ' + game?.name"
-                loading="lazy"
-              />
-              <div class="screenshot-overlay">
-                <div class="expand-icon">⤢</div>
-              </div>
-            </button>
-          }
-        </div>
-      </section>
-    }
-    </div>
   }
 
-  <!-- Screenshot Modal/Lightbox with Swipe Support -->
-  @if (isModalOpen()) {
-    <div class="screenshot-modal active">
-      <!-- Modal Overlay (Close on Click) -->
-      <button
-        class="modal-overlay"
-        (click)="closeModal()"
-        (keydown.enter)="closeModal()"
-        (keydown.space)="closeModal()"
-        aria-label="Close modal"
-      ></button>
-
-      <!-- Modal Content -->
-      <div class="modal-content">
-        <!-- Close Button (Above image) -->
-        <button
-          class="modal-close-btn"
-          (click)="closeModal()"
-          aria-label="Close modal"
-        >
-          &times;
-        </button>
-
-        <!-- Main Image Container with Smooth Transitions -->
-        <div class="modal-image-container">
-          @if (game?.short_screenshots?.[selectedScreenshotIndex()]) {
-            <img
-              [src]="game.short_screenshots[selectedScreenshotIndex()].image"
-              [alt]="'Screenshot ' + (selectedScreenshotIndex() + 1)"
-              class="modal-image"
-              [class.transitioning]="isTransitioning()"
-            />
-          }
-        </div>
-
-        <!-- Image Counter -->
-        @if (game?.short_screenshots?.length > 1) {
-          <div class="modal-counter">
-            {{ selectedScreenshotIndex() + 1 }} /
-            {{ game?.short_screenshots?.length }}
-          </div>
-        }
-
-        <!-- Thumbnail Strip -->
-        @if (game?.short_screenshots?.length > 1) {
-          <div class="modal-thumbnails">
-            @for (item of game?.short_screenshots; track item?.id; let i = $index) {
-              <button
-                class="thumbnail-item"
-                [class.active]="i === selectedScreenshotIndex()"
-                (click)="selectScreenshot(i)"
-                [attr.aria-label]="'Go to screenshot ' + (i + 1)"
-                [attr.aria-current]="i === selectedScreenshotIndex() ? 'true' : 'false'"
-              >
-                <img [src]="item?.image" [alt]="'Thumbnail ' + (i + 1)" />
-              </button>
-            }
-          </div>
-        }
-      </div>
-    </div>
-  }
-
-  <!-- Empty State -->
-  @if (!game()) {
+  <!-- Empty State (no loading, no game) -->
+  @if (!game() && !isLoading()) {
     <div class="empty-state-container">
       <h2 class="empty-state-title">No game selected</h2>
       <p class="empty-state-text">
         Please select a game from the list to view details
       </p>
-      <a routerLink="/all-games" class="ui primary button empty-state-button">
-        Go to Games List
-      </a>
+      <a routerLink="/all-games" class="ui primary button empty-state-button"
+        >Go to Games List</a
+      >
     </div>
   }
+</div>
