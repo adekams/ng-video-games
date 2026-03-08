@@ -6,6 +6,7 @@
 /out-tsc
 # Only exists if Bazel was run
 /bazel-out
+build.log
 
 # dependencies
 /node_modules
@@ -34,7 +35,9 @@ speed-measure-plugin*.json
 .env
 .env.local
 .env.*.local
-src/environments/environment.ts
+src/environments/environment.local.ts
+src/environments/environment.prod.temp.ts
+src/environments/environment.temp.ts
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json

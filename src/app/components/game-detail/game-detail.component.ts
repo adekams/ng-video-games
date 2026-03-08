@@ -1,6 +1,9 @@
-import { Component, OnInit, HostListener, signal, computed } from '@angular/core';
+import { Component, HostListener, inject, OnInit, signal } from '@angular/core';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Game, Ratings } from '../../models/app-filter/app-filter';
+import { GameStateService } from '../../services/game-state.service';
+import { HttpService } from '../../services/http.service';
 
 @Component({
   selector: 'app-game-detail',
@@ -10,127 +13,125 @@ import { RouterModule } from '@angular/router';
   styleUrls: ['./game-detail.component.scss'],
 })
 export class GameDetailComponent implements OnInit {
-  game = signal(this.getGame());
-  isModalOpen = signal(false);
-  selectedScreenshotIndex = signal(0);
-  isTransitioning = signal(false);
-  transitionDuration = 0.5; // seconds
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly gameState = inject(GameStateService);
+  private readonly http = inject(HttpService);
 
-  constructor() {
-    console.log('game ', this.game());
-  }
+  readonly game = signal<Game | null>(null);
+  readonly isLoading = signal(false);
+  readonly isModalOpen = signal(false);
+  readonly selectedScreenshotIndex = signal(0);
+  readonly isTransitioning = signal(false);
+  readonly transitionDuration = 0.5; // seconds
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    const id = Number(this.route.snapshot.paramMap.get('id'));
 
-  onTagHover(event: any, isEnter: boolean): void {
-    const element = event.target as any;
-    if (isEnter) {
-      element.style.background = 'rgba(78, 205, 196, 0.3)';
+    // Use cached game from service if it matches the route ID
+    const cached = this.gameState.game();
+    if (cached && cached.id === id) {
+      this.game.set(cached);
+      return;
+    }
+
+    // Otherwise fetch from API (handles refresh, deep-link, shared URL)
+    if (id) {
+      this.isLoading.set(true);
+      this.http.getGameById(id).subscribe({
+        next: (g) => {
+          this.game.set(g);
+          this.isLoading.set(false);
+        },
+        error: () => {
+          this.isLoading.set(false);
+          void this.router.navigate(['/all-games']);
+        },
+      });
     } else {
-      element.style.background = 'rgba(78, 205, 196, 0.15)';
+      void this.router.navigate(['/all-games']);
     }
   }
 
-  // Screenshot Gallery Methods
+  onTagHover(event: MouseEvent, isEnter: boolean): void {
+    const el = event.target as HTMLElement;
+    el.style.backgroundColor = isEnter
+      ? 'rgba(78, 205, 196, 0.3)'
+      : 'rgba(78, 205, 196, 0.15)';
+  }
+
+  // --- Screenshot Gallery ---
+
   openScreenshot(index: number): void {
     this.selectedScreenshotIndex.set(index);
     this.isModalOpen.set(true);
-    if (typeof globalThis !== 'undefined' && globalThis.document) {
-      globalThis.document.body.style.overflow = 'hidden';
-    }
+    document.body.style.overflow = 'hidden';
   }
 
   closeModal(): void {
     this.isModalOpen.set(false);
-    if (typeof globalThis !== 'undefined' && globalThis.document) {
-      globalThis.document.body.style.overflow = 'auto';
-    }
+    document.body.style.overflow = 'auto';
   }
 
   selectScreenshot(index: number): void {
     if (index === this.selectedScreenshotIndex()) return;
     this.isTransitioning.set(true);
     this.selectedScreenshotIndex.set(index);
-
-    // Remove transition state after animation completes
-    setTimeout(() => {
-      this.isTransitioning.set(false);
-    }, this.transitionDuration * 1000);
+    setTimeout(
+      () => this.isTransitioning.set(false),
+      this.transitionDuration * 1000,
+    );
   }
 
   nextScreenshot(): void {
-    const game = this.game();
-    if (game?.short_screenshots?.length && !this.isTransitioning()) {
-      const nextIndex =
-        (this.selectedScreenshotIndex() + 1) % game.short_screenshots.length;
-      this.selectScreenshot(nextIndex);
+    const screenshots = this.game()?.short_screenshots;
+    if (screenshots?.length && !this.isTransitioning()) {
+      this.selectScreenshot(
+        (this.selectedScreenshotIndex() + 1) % screenshots.length,
+      );
     }
   }
 
   previousScreenshot(): void {
-    const game = this.game();
-    if (game?.short_screenshots?.length && !this.isTransitioning()) {
-      const prevIndex =
-        (this.selectedScreenshotIndex() -
-          1 +
-          game.short_screenshots.length) %
-        game.short_screenshots.length;
-      this.selectScreenshot(prevIndex);
+    const screenshots = this.game()?.short_screenshots;
+    if (screenshots?.length && !this.isTransitioning()) {
+      this.selectScreenshot(
+        (this.selectedScreenshotIndex() - 1 + screenshots.length) %
+          screenshots.length,
+      );
     }
   }
 
   @HostListener('document:keydown.escape')
   onEscapeKey(): void {
-    if (this.isModalOpen()) {
-      this.closeModal();
-    }
+    if (this.isModalOpen()) this.closeModal();
   }
 
   @HostListener('document:keydown.arrowRight')
   onArrowRight(): void {
-    if (this.isModalOpen()) {
-      this.nextScreenshot();
-    }
+    if (this.isModalOpen()) this.nextScreenshot();
   }
 
   @HostListener('document:keydown.arrowLeft')
   onArrowLeft(): void {
-    if (this.isModalOpen()) {
-      this.previousScreenshot();
-    }
+    if (this.isModalOpen()) this.previousScreenshot();
   }
 
-  // Rating Methods - Calculate Google Play style percentages
-  getRatingPercentage(rating: any): number {
-    const game = this.game();
-    if (!game?.ratings || !rating) return 0;
-    const total = game.ratings.reduce(
-      (sum: number, r: any) => sum + (r.count || 0),
-      0,
-    );
-    return total > 0 ? Math.round((rating.count / total) * 100) : 0;
+  // --- Rating helpers ---
+
+  getRatingPercentage(rating: Ratings): number {
+    const ratings = this.game()?.ratings;
+    if (!ratings?.length || !rating) return 0;
+    const total = ratings.reduce((sum, r) => sum + (r.count || 0), 0);
+    return total > 0 ? Math.round(((rating.count || 0) / total) * 100) : 0;
   }
 
   getRatingColor(title: string): string {
-    const titleLower = title.toLowerCase();
-    if (
-      titleLower.includes('exceptional') ||
-      titleLower.includes('recommended')
-    ) {
+    const t = title.toLowerCase();
+    if (t.includes('exceptional') || t.includes('recommended'))
       return '#4ecdc4';
-    } else if (titleLower.includes('meh')) {
-      return '#ffd93d';
-    } else if (titleLower.includes('skip')) {
-      return '#ff6b6b';
-    }
+    if (t.includes('meh')) return '#ffd93d';
+    if (t.includes('skip')) return '#ff6b6b';
     return '#9b9ba5';
-  }
-
-  private getGame() {
-    if (typeof globalThis !== 'undefined' && globalThis.localStorage) {
-      const gameData = globalThis.localStorage.getItem('game');
-      return gameData ? JSON.parse(gameData) : null;
-    }
-    return null;
   }
 }

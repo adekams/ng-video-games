@@ -1,5 +1,5 @@
 export interface Game {
-  ID: number;
+  id: number;
   background_image: string;
   name: string;
   released: string;
@@ -15,7 +15,7 @@ export interface Game {
   trailers: Trailers[];
   reviews_count?: number;
   updated?: string;
-  short_screenshots?: { image: string }[];
+  short_screenshots?: { id: number; image: string }[];
   tags?: Tag[];
 }
 
@@ -42,7 +42,7 @@ interface Publishers {
   name: string;
 }
 
-interface Ratings {
+export interface Ratings {
   id: number;
   count: number;
   title: string;

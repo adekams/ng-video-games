@@ -12,6 +12,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { HttpService } from '../../services/http.service';
+import { GameStateService } from '../../services/game-state.service';
 import { SearchbarComponent } from '../searchbar/searchbar.component';
 import { Game } from 'src/app/models/app-filter/app-filter';
 
@@ -31,6 +32,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   private readonly http: HttpService = inject(HttpService);
   private readonly router: Router = inject(Router);
   private readonly activatedRoute: ActivatedRoute = inject(ActivatedRoute);
+  private readonly gameState = inject(GameStateService);
 
   @ViewChild('scrollTrigger', { static: false })
   private scrollTrigger!: ElementRef<HTMLDivElement>;
@@ -163,10 +165,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   // Navigation
   goToItem(item: Game): void {
-    if (typeof globalThis !== 'undefined' && globalThis.localStorage) {
-      globalThis.localStorage.setItem('game', JSON.stringify(item));
-    }
-    void this.router.navigate(['detail'], { state: { game: item } });
+    this.gameState.select(item);
+    void this.router.navigate(['detail', item.id]);
   }
 
   convertPlatformNametoLowercase(name?: string): string {
